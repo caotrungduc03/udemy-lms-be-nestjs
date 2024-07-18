@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
 import { APP_FILTER } from '@nestjs/core';
-import { AllExceptionsFilter } from './utils/allExceptionsFilter';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleModule } from './role/role.module';
+import { UserModule } from './user/user.module';
+import { AllExceptionsFilter } from './utils/allExceptionsFilter';
 
 @Module({
   imports: [
@@ -19,8 +19,8 @@ import { RoleModule } from './role/role.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    UserModule,
     RoleModule,
+    UserModule,
   ],
   controllers: [],
   providers: [

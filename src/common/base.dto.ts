@@ -2,7 +2,7 @@ import { Expose, plainToInstance } from 'class-transformer';
 
 export abstract class BaseDto {
   @Expose()
-  id: string;
+  id: number;
 
   @Expose()
   createdAt: Date;

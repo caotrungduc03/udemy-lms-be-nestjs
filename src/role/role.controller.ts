@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreateRoleDto, RoleDto, UpdateRoleDto } from 'src/dtos';
 import { RoleEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
@@ -16,7 +26,7 @@ export class RoleController {
   }
 
   @Get('/:id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseIntPipe) id: number) {
     const role: RoleEntity = await this.roleService.findById(id);
 
     return new CustomResponse(HttpStatus.OK, 'Success', RoleDto.plainToInstance(role));
@@ -30,14 +40,14 @@ export class RoleController {
   }
 
   @Put('/:id')
-  async updateById(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
+  async updateById(@Param('id', ParseIntPipe) id: number, @Body() updateRoleDto: UpdateRoleDto) {
     const role: RoleEntity = await this.roleService.updateById(id, updateRoleDto);
 
     return new CustomResponse(HttpStatus.OK, 'Updated a role', RoleDto.plainToInstance(role));
   }
 
   @Delete('/:id')
-  async deleteById(@Param('id') id: string) {
+  async deleteById(@Param('id', ParseIntPipe) id: number) {
     await this.roleService.deleteById(id);
 
     return new CustomResponse(HttpStatus.OK, 'Deleted a role');

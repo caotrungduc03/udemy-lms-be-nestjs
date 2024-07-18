@@ -23,7 +23,7 @@ export class CreateUserDto {
 
   avatar: string;
 
-  roleId: string;
+  roleId: number;
 
   status: boolean;
 }

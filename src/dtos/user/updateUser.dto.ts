@@ -9,7 +9,7 @@ export class UpdateUserDto {
 
   avatar: string;
 
-  roleId: string;
+  roleId: number;
 
   status: boolean;
 }

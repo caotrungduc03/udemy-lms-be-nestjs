@@ -18,7 +18,7 @@ export class UserService extends BaseService<UserEntity> {
     return this.userRepository.find();
   }
 
-  async findById(id: string): Promise<UserEntity> {
+  async findById(id: number): Promise<UserEntity> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -42,12 +42,13 @@ export class UserService extends BaseService<UserEntity> {
     }
 
     createUserDto.password = encodePassword(createUserDto.password);
+
     const createdUser = await this.userRepository.save(createUserDto);
 
     return createdUser;
   }
 
-  async updateById(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+  async updateById(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const user = await this.findById(id);
 
     const updatedUser = await this.userRepository.save({
@@ -58,10 +59,10 @@ export class UserService extends BaseService<UserEntity> {
     return updatedUser;
   }
 
-  async deleteById(id: string): Promise<UserEntity> {
+  async deleteById(id: number): Promise<UserEntity> {
     const user = await this.findById(id);
 
-    await this.userRepository.softDelete(id);
+    await this.userRepository.delete(id);
 
     return user;
   }

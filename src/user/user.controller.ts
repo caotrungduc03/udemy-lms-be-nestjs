@@ -1,9 +1,19 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
-import { UserEntity } from 'src/entities';
-import { UserService } from './user.service';
-import { CustomResponse } from 'src/utils/customResponse';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/dtos';
 import { UserDto } from 'src/dtos/user/user.dto';
+import { UserEntity } from 'src/entities';
+import { CustomResponse } from 'src/utils/customResponse';
+import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
@@ -17,7 +27,7 @@ export class UserController {
   }
 
   @Get('/:id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseIntPipe) id: number) {
     const user: UserEntity = await this.userService.findById(id);
 
     return new CustomResponse(HttpStatus.OK, 'Success', UserDto.plainToInstance(user));
@@ -27,18 +37,18 @@ export class UserController {
   async create(@Body() createUserDto: CreateUserDto) {
     const user: UserEntity = await this.userService.create(createUserDto);
 
-    return new CustomResponse(HttpStatus.OK, 'Created a new user', UserDto.plainToInstance(user));
+    return new CustomResponse(HttpStatus.OK, 'Created a new user', user);
   }
 
   @Put('/:id')
-  async updateById(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async updateById(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
     const user: UserEntity = await this.userService.updateById(id, updateUserDto);
 
     return new CustomResponse(HttpStatus.OK, 'Updated a user', UserDto.plainToInstance(user));
   }
 
   @Delete('/:id')
-  async deleteById(@Param('id') id: string) {
+  async deleteById(@Param('id', ParseIntPipe) id: number) {
     await this.userService.deleteById(id);
 
     return new CustomResponse(HttpStatus.OK, 'Deleted a user');

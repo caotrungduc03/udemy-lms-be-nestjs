@@ -7,7 +7,7 @@ export interface IBaseService<T> {
 
   create(data: any): Promise<T>;
 
-  update(id: string, data: any, options: FindOneOptions<T>): Promise<T>;
+  update(id: number, data: any, options: FindOneOptions<T>): Promise<T>;
 
-  delete(id: string): Promise<DeleteResult>;
+  delete(id: number): Promise<DeleteResult>;
 }

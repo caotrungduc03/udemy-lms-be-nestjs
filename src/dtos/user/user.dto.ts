@@ -15,7 +15,7 @@ export class UserDto extends BaseDto {
   avatar: string;
 
   @Expose()
-  roleId: string;
+  roleId: number;
 
   @Expose()
   status: boolean;

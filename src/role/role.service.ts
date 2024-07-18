@@ -17,7 +17,7 @@ export class RoleService extends BaseService<RoleEntity> {
     return this.roleRepository.find();
   }
 
-  async findById(id: string): Promise<RoleEntity> {
+  async findById(id: number): Promise<RoleEntity> {
     const role = await this.roleRepository.findOneBy({ id });
 
     if (!role) {
@@ -41,7 +41,7 @@ export class RoleService extends BaseService<RoleEntity> {
     return this.roleRepository.save(createRoleDto);
   }
 
-  async updateById(id: string, updateRoleDto: UpdateRoleDto): Promise<RoleEntity> {
+  async updateById(id: number, updateRoleDto: UpdateRoleDto): Promise<RoleEntity> {
     const role = await this.findById(id);
 
     const updatedRole = await this.roleRepository.save({
@@ -52,10 +52,10 @@ export class RoleService extends BaseService<RoleEntity> {
     return updatedRole;
   }
 
-  async deleteById(id: string): Promise<RoleEntity> {
+  async deleteById(id: number): Promise<RoleEntity> {
     const role = await this.findById(id);
 
-    await this.roleRepository.softDelete(id);
+    await this.roleRepository.delete(id);
 
     return role;
   }

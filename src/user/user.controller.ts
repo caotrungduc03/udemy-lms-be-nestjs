@@ -37,7 +37,7 @@ export class UserController {
   async create(@Body() createUserDto: CreateUserDto) {
     const user: UserEntity = await this.userService.create(createUserDto);
 
-    return new CustomResponse(HttpStatus.OK, 'Created a new user', user);
+    return new CustomResponse(HttpStatus.OK, 'Created a new user', UserDto.plainToInstance(user));
   }
 
   @Put('/:id')

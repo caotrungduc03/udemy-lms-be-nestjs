@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CreateUserDto, UpdateUserDto } from 'src/dtos';
 import { UserEntity } from 'src/entities';
+import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
 import { Repository } from 'typeorm';
 
@@ -10,6 +11,7 @@ import { Repository } from 'typeorm';
 export class UserService extends BaseService<UserEntity> {
   constructor(
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    private readonly roleService: RoleService,
   ) {
     super(userRepository);
   }
@@ -49,11 +51,15 @@ export class UserService extends BaseService<UserEntity> {
   }
 
   async updateById(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+    const { roleId, ...remainingData } = updateUserDto;
     const user = await this.findById(id);
+
+    const role = await this.roleService.findById(roleId);
 
     const updatedUser = await this.userRepository.save({
       ...user,
-      ...updateUserDto,
+      ...remainingData,
+      role,
     });
 
     return updatedUser;

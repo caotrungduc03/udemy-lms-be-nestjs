@@ -1,5 +1,6 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { BeforeUpdate, Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { UserEntity } from './user.entity';
 
 @Entity({
   name: 'roles',
@@ -11,8 +12,6 @@ export class RoleEntity extends CustomBaseEntity {
   })
   roleName: string;
 
-  @BeforeUpdate()
-  upperCase() {
-    this.roleName = this.roleName.trim().toUpperCase();
-  }
+  @OneToMany(() => UserEntity, (user: UserEntity) => user.role)
+  users: UserEntity[];
 }

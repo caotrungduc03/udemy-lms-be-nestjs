@@ -1,5 +1,6 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './utils/allExceptionsFilter';
 
 async function bootstrap() {
@@ -7,6 +8,7 @@ async function bootstrap() {
   const httpAdapterHost: HttpAdapterHost = app.get(HttpAdapterHost);
 
   app.setGlobalPrefix('api/v1');
+  app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   await app.listen(4000);

@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
+import { CreateUserDto, UpdateUserDto } from 'src/dtos';
 import { UserEntity } from 'src/entities';
 import { encodePassword } from 'src/utils/bcrypt';
 import { Repository } from 'typeorm';
@@ -26,31 +27,32 @@ export class UserService extends BaseService<UserEntity> {
     return user;
   }
 
-  async create(data: any): Promise<UserEntity> {
-    if (data.password !== data.confirmPassword) {
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    if (createUserDto.password !== createUserDto.confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
 
     const user = await this.userRepository.findOne({
       where: {
-        email: data.email,
+        email: createUserDto.email,
       },
     });
     if (user) {
       throw new BadRequestException('User already exists');
     }
 
-    data.password = encodePassword(data.password);
+    createUserDto.password = encodePassword(createUserDto.password);
+    const createdUser = await this.userRepository.save(createUserDto);
 
-    return this.userRepository.save(data);
+    return createdUser;
   }
 
-  async updateById(id: string, data: any): Promise<UserEntity> {
+  async updateById(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const user = await this.findById(id);
 
     const updatedUser = await this.userRepository.save({
       ...user,
-      ...data,
+      ...updateUserDto,
     });
 
     return updatedUser;
@@ -59,7 +61,7 @@ export class UserService extends BaseService<UserEntity> {
   async deleteById(id: string): Promise<UserEntity> {
     const user = await this.findById(id);
 
-    await this.userRepository.delete(id);
+    await this.userRepository.softDelete(id);
 
     return user;
   }

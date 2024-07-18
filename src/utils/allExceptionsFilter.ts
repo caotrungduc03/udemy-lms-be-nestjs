@@ -18,7 +18,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
       if (typeof exception.getResponse() === 'object') {
-        message = exception.getResponse()['message'];
+        if (Array.isArray(exception.getResponse()['message'])) {
+          message = exception.getResponse()['message'].join(', ');
+        } else {
+          message = exception.getResponse()['message'];
+        }
       } else {
         message = exception.getResponse().toString();
       }

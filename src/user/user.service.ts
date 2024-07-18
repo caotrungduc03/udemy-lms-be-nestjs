@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { UserEntity } from 'src/entities';
+import { encodePassword } from 'src/utils/bcrypt';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -38,6 +39,8 @@ export class UserService extends BaseService<UserEntity> {
     if (user) {
       throw new BadRequestException('User already exists');
     }
+
+    data.password = encodePassword(data.password);
 
     return this.userRepository.save(data);
   }

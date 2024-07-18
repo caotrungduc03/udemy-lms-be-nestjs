@@ -1,5 +1,4 @@
-import { EntityId } from 'typeorm/repository/EntityId';
-import { DeleteResult, FindOneOptions, UpdateResult } from 'typeorm';
+import { DeleteResult, FindOneOptions } from 'typeorm';
 
 export interface IBaseService<T> {
   findAll(): Promise<T[]>;
@@ -8,7 +7,7 @@ export interface IBaseService<T> {
 
   create(data: any): Promise<T>;
 
-  update(id: EntityId, data: any): Promise<UpdateResult>;
+  update(id: string, data: any, options: FindOneOptions<T>): Promise<T>;
 
-  delete(id: EntityId): Promise<DeleteResult>;
+  delete(id: string): Promise<DeleteResult>;
 }

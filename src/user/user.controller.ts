@@ -13,12 +13,15 @@ import { CreateUserDto, UpdateUserDto } from 'src/dtos';
 import { UserDto } from 'src/dtos/user/user.dto';
 import { UserEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
+import { RoleEnum } from 'src/utils/role.enum';
+import { Roles } from 'src/utils/roles.decorator';
 import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Roles(RoleEnum.ADMIN)
   @Get('/')
   async findAll() {
     const users: UserEntity[] = await this.userService.findAll();

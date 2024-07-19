@@ -4,8 +4,10 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { UserEntity } from './entities';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
+import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
 import { AuthGuard } from './utils/auth.guard';
 
@@ -29,12 +31,14 @@ import { AuthGuard } from './utils/auth.guard';
         expiresIn: process.env.JWT_EXPIRES_IN,
       },
     }),
+    TypeOrmModule.forFeature([UserEntity]),
     RoleModule,
     UserModule,
     AuthModule,
   ],
   controllers: [],
   providers: [
+    UserService,
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,

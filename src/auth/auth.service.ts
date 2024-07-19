@@ -23,9 +23,14 @@ export class AuthService {
   }
 
   async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
+    loginRequestDto.email = loginRequestDto.email.toLowerCase();
     const user = await this.userService.findByEmail(loginRequestDto.email);
     if (!user) {
       throw new UnauthorizedException('Email or password is incorrect');
+    }
+
+    if (!user.status) {
+      throw new UnauthorizedException('Your account is not active');
     }
 
     const isMatch = comparePassword(loginRequestDto.password, user.password);

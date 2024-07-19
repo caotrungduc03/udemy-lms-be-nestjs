@@ -11,8 +11,7 @@ import {
   Put,
   Req,
 } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto } from 'src/dtos';
-import { UpdateProfileDto } from 'src/dtos/user/updateProfile.dto';
+import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from 'src/dtos';
 import { UserDto } from 'src/dtos/user/user.dto';
 import { UserEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';

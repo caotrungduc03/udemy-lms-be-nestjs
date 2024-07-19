@@ -34,7 +34,7 @@ export class UserEntity extends CustomBaseEntity {
   avatar: string;
 
   @Column({
-    default: false,
+    default: true,
   })
   status: boolean;
 

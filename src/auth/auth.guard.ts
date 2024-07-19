@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { UserEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { IS_PUBLIC_KEY } from '../utils/public.decorator';
 import { RoleEnum } from '../utils/role.enum';
@@ -62,7 +61,11 @@ export class AuthGuard implements CanActivate {
   }
 
   private async isUserInRequiredRoles(payload: any, requiredRoles: RoleEnum[]): Promise<boolean> {
-    const user: UserEntity = await this.userService.findById(payload.sub);
+    const user = await this.userService.findById(payload.sub);
+    if (!user.status) {
+      throw new UnauthorizedException('Your account is not active');
+    }
+
     const roleName = user.role?.roleName?.toUpperCase();
 
     return requiredRoles.includes(roleName as RoleEnum);

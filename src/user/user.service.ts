@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
-import { CreateUserDto, RegisterDto, UpdateUserDto } from 'src/dtos';
-import { UpdateProfileDto } from 'src/dtos/user/updateProfile.dto';
+import { CreateUserDto, RegisterDto, UpdateProfileDto, UpdateUserDto } from 'src/dtos';
 import { UserEntity } from 'src/entities';
 import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
@@ -34,6 +33,8 @@ export class UserService extends BaseService<UserEntity> {
     if (createUserDto.password !== createUserDto.confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
+
+    createUserDto.email = createUserDto.email.toLowerCase();
 
     const user = await this.userRepository.findOne({
       where: {

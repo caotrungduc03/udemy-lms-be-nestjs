@@ -4,9 +4,9 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { IS_PUBLIC_KEY } from './public.decorator';
-import { RoleEnum } from './role.enum';
-import { ROLES_KEY } from './roles.decorator';
+import { IS_PUBLIC_KEY } from '../utils/public.decorator';
+import { RoleEnum } from '../utils/role.enum';
+import { ROLES_KEY } from '../utils/roles.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,8 +19,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     return (
       (await this.isPublicRoute(context)) ||
-      (await this.isTokenValid(context)) ||
-      (await this.isUserHasRequiredRoles(context))
+      ((await this.isTokenValid(context)) && (await this.isUserHasRequiredRoles(context)))
     );
   }
 

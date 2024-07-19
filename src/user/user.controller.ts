@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Req,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/dtos';
 import { UserDto } from 'src/dtos/user/user.dto';
@@ -21,15 +22,24 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Roles(RoleEnum.ADMIN)
   @Get('/')
+  @Roles(RoleEnum.ADMIN)
   async findAll() {
     const users: UserEntity[] = await this.userService.findAll();
 
     return new CustomResponse(HttpStatus.OK, 'Success', UserDto.plainToInstance(users));
   }
 
+  @Get('/profile')
+  async profile(@Req() req: Request) {
+    const userReq = req['user'];
+    const user: UserEntity = await this.userService.getProfile(userReq.sub);
+
+    return new CustomResponse(HttpStatus.OK, 'Success', UserDto.plainToInstance(user));
+  }
+
   @Get('/:id')
+  @Roles(RoleEnum.ADMIN)
   async findById(@Param('id', ParseIntPipe) id: number) {
     const user: UserEntity = await this.userService.findById(id);
 
@@ -37,6 +47,7 @@ export class UserController {
   }
 
   @Post('/')
+  @Roles(RoleEnum.ADMIN)
   async create(@Body() createUserDto: CreateUserDto) {
     const user: UserEntity = await this.userService.create(createUserDto);
 
@@ -44,6 +55,7 @@ export class UserController {
   }
 
   @Put('/:id')
+  @Roles(RoleEnum.ADMIN)
   async updateById(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
     const user: UserEntity = await this.userService.updateById(id, updateUserDto);
 
@@ -51,6 +63,7 @@ export class UserController {
   }
 
   @Delete('/:id')
+  @Roles(RoleEnum.ADMIN)
   async deleteById(@Param('id', ParseIntPipe) id: number) {
     await this.userService.deleteById(id);
 

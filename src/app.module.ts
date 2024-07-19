@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
-import { AllExceptionsFilter } from './utils/allExceptionsFilter';
+import { AllExceptionsFilter } from './utils/allExceptions.filter';
+import { AuthGuard } from './utils/auth.guard';
 
 @Module({
   imports: [
@@ -37,6 +38,10 @@ import { AllExceptionsFilter } from './utils/allExceptionsFilter';
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
     },
   ],
 })

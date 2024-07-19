@@ -6,11 +6,13 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Req,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/dtos';
+import { UpdateProfileDto } from 'src/dtos/user/updateProfile.dto';
 import { UserDto } from 'src/dtos/user/user.dto';
 import { UserEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
@@ -33,9 +35,17 @@ export class UserController {
   @Get('/profile')
   async profile(@Req() req: Request) {
     const userReq = req['user'];
-    const user: UserEntity = await this.userService.getProfile(userReq.sub);
+    const user: UserEntity = await this.userService.findById(userReq.sub);
 
     return new CustomResponse(HttpStatus.OK, 'Success', UserDto.plainToInstance(user));
+  }
+
+  @Patch('/profile')
+  async updateProfile(@Req() req: Request, @Body() updateProfileDto: UpdateProfileDto) {
+    const userReq = req['user'];
+    const user: UserEntity = await this.userService.updateProfile(userReq.sub, updateProfileDto);
+
+    return new CustomResponse(HttpStatus.OK, 'Updated profile', UserDto.plainToInstance(user));
   }
 
   @Get('/:id')

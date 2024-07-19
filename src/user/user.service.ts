@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CreateUserDto, RegisterDto, UpdateUserDto } from 'src/dtos';
+import { UpdateProfileDto } from 'src/dtos/user/updateProfile.dto';
 import { UserEntity } from 'src/entities';
 import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
@@ -95,5 +96,16 @@ export class UserService extends BaseService<UserEntity> {
     });
 
     return user;
+  }
+
+  async updateProfile(id: number, updateProfileDto: UpdateProfileDto): Promise<UserEntity> {
+    const user = await this.findById(id);
+
+    const updatedUser = await this.userRepository.save({
+      ...user,
+      ...updateProfileDto,
+    });
+
+    return updatedUser;
   }
 }

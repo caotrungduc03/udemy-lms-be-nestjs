@@ -1,9 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LoginDto, RegisterDto } from 'src/dtos';
+import { LoginRequestDto, LoginResponseDto, RegisterDto, UserDto } from 'src/dtos';
 import { UserEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { comparePassword } from 'src/utils/bcrypt';
+import { JwtPayload } from 'src/utils/i.jwtPayload';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,6 +13,7 @@ export class AuthService {
   constructor(
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
     private readonly userService: UserService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<UserDto> {
@@ -19,13 +22,13 @@ export class AuthService {
     return UserDto.plainToInstance(user);
   }
 
-  async login(loginDto: LoginDto): Promise<UserEntity> {
-    const user = await this.userService.findByEmail(loginDto.email);
+  async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
+    const user = await this.userService.findByEmail(loginRequestDto.email);
     if (!user) {
       throw new UnauthorizedException('Email or password is incorrect');
     }
 
-    const isMatch = comparePassword(loginDto.password, user.password);
+    const isMatch = comparePassword(loginRequestDto.password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Email or password is incorrect');
     }
@@ -34,6 +37,15 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
-    return user;
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+    };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return {
+      user: UserDto.plainToInstance(user),
+      accessToken,
+    };
   }
 }

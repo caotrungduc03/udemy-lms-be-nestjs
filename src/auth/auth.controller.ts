@@ -1,5 +1,5 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
-import { LoginDto, RegisterDto, UserDto } from 'src/dtos';
+import { LoginRequestDto, LoginResponseDto, RegisterDto, UserDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
 import { AuthService } from './auth.service';
 
@@ -15,11 +15,9 @@ export class AuthController {
   }
 
   @Post('/login')
-  async login(@Body() loginDto: LoginDto) {
-    const user = await this.authService.login(loginDto);
+  async login(@Body() loginRequestDto: LoginRequestDto) {
+    const loginResponseDto: LoginResponseDto = await this.authService.login(loginRequestDto);
 
-    return new CustomResponse(HttpStatus.OK, 'User logged in', {
-      user: UserDto.plainToInstance(user),
-    });
+    return new CustomResponse(HttpStatus.OK, 'User logged in', loginResponseDto);
   }
 }

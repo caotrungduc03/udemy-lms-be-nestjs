@@ -7,6 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const httpAdapterHost: HttpAdapterHost = app.get(HttpAdapterHost);
 
+  app.enableCors();
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));

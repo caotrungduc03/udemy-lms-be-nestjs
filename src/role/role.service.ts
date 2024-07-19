@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CreateRoleDto, UpdateRoleDto } from 'src/dtos';
 import { RoleEntity } from 'src/entities';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 @Injectable()
 export class RoleService extends BaseService<RoleEntity> {
@@ -56,6 +56,12 @@ export class RoleService extends BaseService<RoleEntity> {
     const role = await this.findById(id);
 
     await this.roleRepository.delete(id);
+
+    return role;
+  }
+
+  async findByName(roleName: string): Promise<RoleEntity> {
+    const role = await this.roleRepository.findOne({ where: { roleName: ILike(`%${roleName}%`) } });
 
     return role;
   }

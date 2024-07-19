@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
-import { CreateUserDto, UpdateUserDto } from 'src/dtos';
+import { CreateUserDto, RegisterDto, UpdateUserDto } from 'src/dtos';
 import { UserEntity } from 'src/entities';
 import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
@@ -29,7 +29,7 @@ export class UserService extends BaseService<UserEntity> {
     return user;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+  async create(createUserDto: CreateUserDto | RegisterDto): Promise<UserEntity> {
     if (createUserDto.password !== createUserDto.confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
@@ -41,6 +41,11 @@ export class UserService extends BaseService<UserEntity> {
     });
     if (user) {
       throw new BadRequestException('User already exists');
+    }
+
+    if (!createUserDto['roleId']) {
+      const defaultRole = await this.roleService.findByName('Student');
+      createUserDto['roleId'] = defaultRole.id;
     }
 
     createUserDto.password = encodePassword(createUserDto.password);
@@ -69,6 +74,25 @@ export class UserService extends BaseService<UserEntity> {
     const user = await this.findById(id);
 
     await this.userRepository.delete(id);
+
+    return user;
+  }
+
+  async findByEmail(email: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: [
+        'id',
+        'email',
+        'password',
+        'fullName',
+        'phoneNumber',
+        'avatar',
+        'status',
+        'lastLogin',
+        'roleId',
+      ],
+    });
 
     return user;
   }

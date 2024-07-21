@@ -32,17 +32,17 @@ export class UserController {
   }
 
   @Get('/profile')
-  async profile(@Req() req: Request) {
-    const userReq = req['user'];
-    const user: UserEntity = await this.userService.findById(userReq.sub);
+  async profile(@Req() request: Request) {
+    const userReq = request['user'];
+    const user: UserEntity = await this.userService.findById(userReq.userId);
 
     return new CustomResponse(HttpStatus.OK, 'Success', UserDto.plainToInstance(user));
   }
 
   @Patch('/profile')
-  async updateProfile(@Req() req: Request, @Body() updateProfileDto: UpdateProfileDto) {
-    const userReq = req['user'];
-    const user: UserEntity = await this.userService.updateProfile(userReq.sub, updateProfileDto);
+  async updateProfile(@Req() request: Request, @Body() updateProfileDto: UpdateProfileDto) {
+    const userReq = request['user'];
+    const user: UserEntity = await this.userService.updateProfile(userReq.userId, updateProfileDto);
 
     return new CustomResponse(HttpStatus.OK, 'Updated profile', UserDto.plainToInstance(user));
   }

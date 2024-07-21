@@ -29,6 +29,6 @@ export class UserDto extends BaseDto {
   role: RoleDto;
 
   @Expose()
-  @Transform(({ obj }) => obj.role?.roleName)
+  @Transform(({ obj }) => obj?.role?.roleName)
   roleName: string;
 }

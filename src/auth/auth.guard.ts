@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
+import { JwtPayload } from 'src/utils/i.jwtPayload';
 import { IS_PUBLIC_KEY } from '../utils/public.decorator';
 import { RoleEnum } from '../utils/role.enum';
 import { ROLES_KEY } from '../utils/roles.decorator';
@@ -40,7 +41,9 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      const payload: JwtPayload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
       request['user'] = payload;
 
       return true;
@@ -61,7 +64,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private async isUserInRequiredRoles(payload: any, requiredRoles: RoleEnum[]): Promise<boolean> {
-    const user = await this.userService.findById(payload.sub);
+    const user = await this.userService.findById(payload.userId);
     if (!user.status) {
       throw new UnauthorizedException('Your account is not active');
     }

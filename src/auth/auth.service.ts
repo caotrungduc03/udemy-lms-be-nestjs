@@ -43,7 +43,7 @@ export class AuthService {
     await this.userRepository.save(user);
 
     const payload: JwtPayload = {
-      sub: user.id,
+      userId: user.id,
       email: user.email,
     };
     const accessToken = await this.jwtService.signAsync(payload);

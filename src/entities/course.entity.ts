@@ -1,5 +1,6 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { CategoryEntity } from './category.entity';
 import { UserEntity } from './user.entity';
 
 @Entity({
@@ -47,4 +48,16 @@ export class CourseEntity extends CustomBaseEntity {
     name: 'author_id',
   })
   author: UserEntity;
+
+  @Column({
+    name: 'category_id',
+    nullable: false,
+  })
+  categoryId: number;
+
+  @ManyToOne(() => CategoryEntity, (category: CategoryEntity) => category.courses)
+  @JoinColumn({
+    name: 'category_id',
+  })
+  category: CategoryEntity;
 }

@@ -1,5 +1,6 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { CourseEntity } from './course.entity';
 
 @Entity({
   name: 'categories',
@@ -26,4 +27,7 @@ export class CategoryEntity extends CustomBaseEntity {
 
   @OneToMany(() => CategoryEntity, (category: CategoryEntity) => category.parent)
   children: CategoryEntity[];
+
+  @OneToMany(() => CourseEntity, (course: CourseEntity) => course.category)
+  courses: CourseEntity[];
 }

@@ -23,4 +23,7 @@ export class UpdateCourseDto {
 
   @IsEmpty()
   authorId: number;
+
+  @IsNotEmpty()
+  categoryId: number;
 }

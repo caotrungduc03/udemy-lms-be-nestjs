@@ -52,9 +52,7 @@ export class UserEntity extends CustomBaseEntity {
   })
   roleId: number;
 
-  @ManyToOne(() => RoleEntity, (role: RoleEntity) => role.users, {
-    eager: true,
-  })
+  @ManyToOne(() => RoleEntity, (role: RoleEntity) => role.users)
   @JoinColumn({
     name: 'role_id',
   })

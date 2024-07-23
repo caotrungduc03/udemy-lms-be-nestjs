@@ -17,11 +17,14 @@ export class UserService extends BaseService<UserEntity> {
   }
 
   async findAll(): Promise<UserEntity[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({ relations: ['role'] });
   }
 
   async findById(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['role'],
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -46,7 +49,7 @@ export class UserService extends BaseService<UserEntity> {
     }
 
     if (!createUserDto['roleId']) {
-      const defaultRole = await this.roleService.findByName('Student');
+      const defaultRole = await this.roleService.findByName('STUDENT');
       createUserDto['roleId'] = defaultRole.id;
     }
 
@@ -58,18 +61,17 @@ export class UserService extends BaseService<UserEntity> {
   }
 
   async updateById(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    const { roleId, ...remainingData } = updateUserDto;
     const user = await this.findById(id);
 
-    const role = await this.roleService.findById(roleId);
+    if (updateUserDto.roleId !== user.roleId) {
+      const role = await this.roleService.findById(updateUserDto.roleId);
+      user.role = role;
+    }
 
-    const updatedUser = await this.userRepository.save({
+    return this.userRepository.save({
       ...user,
-      ...remainingData,
-      role,
+      ...updateUserDto,
     });
-
-    return updatedUser;
   }
 
   async deleteById(id: number): Promise<UserEntity> {
@@ -83,6 +85,7 @@ export class UserService extends BaseService<UserEntity> {
   async findByEmail(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { email },
+      relations: ['role'],
       select: [
         'id',
         'email',

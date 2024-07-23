@@ -42,9 +42,7 @@ export class CourseEntity extends CustomBaseEntity {
   })
   authorId: number;
 
-  @ManyToOne(() => UserEntity, (user: UserEntity) => user.courses, {
-    eager: true,
-  })
+  @ManyToOne(() => UserEntity, (user: UserEntity) => user.courses)
   @JoinColumn({
     name: 'author_id',
   })

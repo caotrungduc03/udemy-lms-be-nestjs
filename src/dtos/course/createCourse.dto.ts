@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, Min, MinLength } from 'class-validator';
+import { IsEmpty, IsEnum, IsNotEmpty, Min, MinLength } from 'class-validator';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -21,5 +21,6 @@ export class CreateCourseDto {
 
   language: string;
 
+  @IsEmpty()
   authorId: number;
 }

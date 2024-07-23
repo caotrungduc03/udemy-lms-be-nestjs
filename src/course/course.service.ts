@@ -14,11 +14,14 @@ export class CourseService extends BaseService<CourseEntity> {
   }
 
   async findAll(): Promise<CourseEntity[]> {
-    return await this.courseRepository.find();
+    return await this.courseRepository.find({ relations: ['author'] });
   }
 
   async findById(id: number): Promise<CourseEntity> {
-    const course: CourseEntity = await this.courseRepository.findOneBy({ id });
+    const course: CourseEntity = await this.courseRepository.findOne({
+      where: { id },
+      relations: ['author'],
+    });
     if (!course) {
       throw new NotFoundException('Course not found');
     }

@@ -1,4 +1,5 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { LoginRequestDto, LoginResponseDto, RegisterDto, UserDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Public } from 'src/utils/public.decorator';
@@ -18,9 +19,11 @@ export class AuthController {
 
   @Post('/login')
   @Public()
-  async login(@Body() loginRequestDto: LoginRequestDto) {
+  async login(@Res() res: Response, @Body() loginRequestDto: LoginRequestDto) {
     const loginResponseDto: LoginResponseDto = await this.authService.login(loginRequestDto);
 
-    return new CustomResponse(HttpStatus.OK, 'User logged in', loginResponseDto);
+    return res
+      .status(HttpStatus.OK)
+      .json(new CustomResponse(HttpStatus.OK, 'User logged in', loginResponseDto));
   }
 }

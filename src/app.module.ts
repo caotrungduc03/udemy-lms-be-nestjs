@@ -12,6 +12,7 @@ import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
     UserModule,
     AuthModule,
     CourseModule,
+    CategoryModule,
   ],
   controllers: [],
   providers: [

@@ -1,5 +1,6 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { CourseEntity } from './course.entity';
 import { RoleEntity } from './role.entity';
 
 @Entity({ name: 'users' })
@@ -58,4 +59,7 @@ export class UserEntity extends CustomBaseEntity {
     name: 'role_id',
   })
   role: RoleEntity;
+
+  @ManyToOne(() => CourseEntity, (course: CourseEntity) => course.author)
+  courses: CourseEntity[];
 }

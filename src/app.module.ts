@@ -6,6 +6,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
+import { CourseModule } from './course/course.module';
 import { UserEntity } from './entities';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
@@ -42,6 +43,7 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
     RoleModule,
     UserModule,
     AuthModule,
+    CourseModule,
   ],
   controllers: [],
   providers: [

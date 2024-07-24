@@ -12,7 +12,7 @@ export abstract class BaseService<T extends BaseEntity> implements IBaseService<
     return this.repository.findOne(options);
   }
 
-  async create(data: any): Promise<T> {
+  async store(data: any): Promise<T> {
     return this.repository.save(data);
   }
 

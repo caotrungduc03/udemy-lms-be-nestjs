@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -6,13 +6,15 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
+import { CategoryModule } from './category/category.module';
 import { CourseModule } from './course/course.module';
+import { DatabaseSeederModule } from './database-seeder/database-seeder.module';
+import { DatabaseSeederService } from './database-seeder/database-seeder.service';
 import { UserEntity } from './entities';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
-import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -46,6 +48,7 @@ import { CategoryModule } from './category/category.module';
     AuthModule,
     CourseModule,
     CategoryModule,
+    DatabaseSeederModule,
   ],
   controllers: [],
   providers: [
@@ -64,4 +67,10 @@ import { CategoryModule } from './category/category.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private readonly databaseSeederService: DatabaseSeederService) {}
+
+  async onModuleInit() {
+    await this.databaseSeederService.seed();
+  }
+}

@@ -5,7 +5,7 @@ export interface IBaseService<T> {
 
   findOne(options: FindOneOptions<T>): Promise<T>;
 
-  create(data: any): Promise<T>;
+  store(data: any): Promise<T>;
 
   update(id: number, data: any, options: FindOneOptions<T>): Promise<T>;
 

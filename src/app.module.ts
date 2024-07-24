@@ -34,6 +34,10 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+        ca: process.env.CA_PEM,
+      },
     }),
     JwtModule.register({
       global: true,

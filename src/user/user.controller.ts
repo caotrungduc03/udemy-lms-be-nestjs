@@ -9,12 +9,14 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from 'src/dtos';
 import { UserDto } from 'src/dtos/user/user.dto';
 import { UserEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
+import { IPagination } from 'src/utils/i.pagination';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { UserService } from './user.service';
@@ -25,10 +27,16 @@ export class UserController {
 
   @Get('/')
   @Roles(RoleEnum.ADMIN)
-  async findAll() {
-    const users: UserEntity[] = await this.userService.findAll();
+  async find(@Query() queryObj: Object) {
+    const [page, limit, total, items] = await this.userService.query(queryObj);
+    const results: IPagination<UserDto> = {
+      page,
+      limit,
+      total,
+      items: UserDto.plainToInstance(items),
+    };
 
-    return new CustomResponse(HttpStatus.OK, 'Success', UserDto.plainToInstance(users));
+    return new CustomResponse(HttpStatus.OK, 'Success', results);
   }
 
   @Get('/profile')

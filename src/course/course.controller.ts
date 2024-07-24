@@ -8,12 +8,14 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { CourseDto, UpdateCourseDto } from 'src/dtos';
 import { CreateCourseDto } from 'src/dtos/course/createCourse.dto';
 import { CourseEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
+import { IPagination } from 'src/utils/i.pagination';
 import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
@@ -23,12 +25,19 @@ import { CourseService } from './course.service';
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
-  @Get('/all')
+  @Get('/')
   @Public()
-  async findAll() {
-    const courses: CourseEntity[] = await this.courseService.findAll();
+  async find(@Query() queryObj: Object) {
+    const [page, limit, total, courses] = await this.courseService.query(queryObj);
 
-    return new CustomResponse(HttpStatus.OK, 'Success', CourseDto.plainToInstance(courses));
+    const results: IPagination<CourseDto> = {
+      page,
+      limit,
+      total,
+      items: CourseDto.plainToInstance(courses),
+    };
+
+    return new CustomResponse(HttpStatus.OK, 'Success', results);
   }
 
   @Post('/')

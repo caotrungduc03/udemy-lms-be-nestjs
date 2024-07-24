@@ -8,10 +8,12 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CreateRoleDto, RoleDto, UpdateRoleDto } from 'src/dtos';
 import { RoleEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
+import { IPagination } from 'src/utils/i.pagination';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { RoleService } from './role.service';
@@ -22,10 +24,17 @@ export class RoleController {
 
   @Get('/')
   @Roles(RoleEnum.ADMIN)
-  async findAll() {
-    const roles: RoleEntity[] = await this.roleService.findAll();
+  async find(@Query() queryObj: Object) {
+    const [page, limit, total, roles] = await this.roleService.query(queryObj);
 
-    return new CustomResponse(HttpStatus.OK, 'Success', RoleDto.plainToInstance(roles));
+    const results: IPagination<RoleDto> = {
+      page,
+      limit,
+      total,
+      items: RoleDto.plainToInstance(roles),
+    };
+
+    return new CustomResponse(HttpStatus.OK, 'Success', results);
   }
 
   @Get('/:id')

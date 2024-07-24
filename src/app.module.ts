@@ -47,12 +47,12 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
       },
     }),
     TypeOrmModule.forFeature([UserEntity]),
+    DatabaseSeederModule,
     RoleModule,
     UserModule,
     AuthModule,
     CourseModule,
     CategoryModule,
-    DatabaseSeederModule,
   ],
   controllers: [],
   providers: [

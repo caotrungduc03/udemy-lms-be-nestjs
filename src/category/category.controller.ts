@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from 'src/dtos';
 import { CategoryEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
+import { IPagination } from 'src/utils/i.pagination';
+import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { CategoryService } from './category.service';
@@ -10,11 +12,18 @@ import { CategoryService } from './category.service';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Get('/all')
-  async findAll() {
-    const categories = await this.categoryService.findAll();
+  @Get('/')
+  @Public()
+  async find(@Query() queryObj: Object) {
+    const [page, limit, total, categories] = await this.categoryService.query(queryObj);
+    const results: IPagination<CategoryDto> = {
+      page,
+      limit,
+      total,
+      items: CategoryDto.plainToInstance(categories),
+    };
 
-    return new CustomResponse(HttpStatus.OK, 'Success', CategoryDto.plainToInstance(categories));
+    return new CustomResponse(HttpStatus.OK, 'Success', results);
   }
 
   @Post('/')
@@ -30,6 +39,7 @@ export class CategoryController {
   }
 
   @Get('/:id')
+  @Public()
   async findById(@Param('id') id: number) {
     const category = await this.categoryService.findById(id);
 

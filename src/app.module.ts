@@ -27,13 +27,17 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
     ]),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT) || 5432,
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
       username: process.env.DB_USER_NAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+        ca: process.env.CA_PEM,
+      },
     }),
     JwtModule.register({
       global: true,

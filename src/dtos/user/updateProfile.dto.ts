@@ -1,4 +1,4 @@
-import { IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmpty, IsNotEmpty, MinLength } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsNotEmpty()
@@ -7,5 +7,6 @@ export class UpdateProfileDto {
 
   phoneNumber: string;
 
+  @IsEmpty()
   avatar: string;
 }

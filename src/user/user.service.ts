@@ -1,7 +1,16 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
-import { CreateUserDto, RegisterDto, UpdateProfileDto, UpdateUserDto } from 'src/dtos';
+import {
+  CreateUserDto,
+  RegisterDto,
+  UpdateProfileDto,
+  UpdateUserDto,
+} from 'src/dtos';
 import { UserEntity } from 'src/entities';
 import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
@@ -10,7 +19,8 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class UserService extends BaseService<UserEntity> {
   constructor(
-    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private readonly roleService: RoleService,
   ) {
     super(userRepository);
@@ -32,7 +42,9 @@ export class UserService extends BaseService<UserEntity> {
     return user;
   }
 
-  async create(createUserDto: CreateUserDto | RegisterDto): Promise<UserEntity> {
+  async create(
+    createUserDto: CreateUserDto | RegisterDto,
+  ): Promise<UserEntity> {
     if (createUserDto.password !== createUserDto.confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
@@ -60,7 +72,10 @@ export class UserService extends BaseService<UserEntity> {
     return createdUser;
   }
 
-  async updateById(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+  async updateById(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserEntity> {
     const user = await this.findById(id);
 
     if (updateUserDto.roleId !== user.roleId) {
@@ -102,8 +117,15 @@ export class UserService extends BaseService<UserEntity> {
     return user;
   }
 
-  async updateProfile(id: number, updateProfileDto: UpdateProfileDto): Promise<UserEntity> {
+  async updateProfile(
+    id: number,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<UserEntity> {
     const user = await this.findById(id);
+
+    if (!updateProfileDto.avatar) {
+      updateProfileDto.avatar = user.avatar;
+    }
 
     const updatedUser = await this.userRepository.save({
       ...user,

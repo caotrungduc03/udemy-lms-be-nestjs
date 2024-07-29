@@ -15,6 +15,7 @@ import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
     AuthModule,
     CourseModule,
     CategoryModule,
+    CloudinaryModule,
   ],
   controllers: [],
   providers: [

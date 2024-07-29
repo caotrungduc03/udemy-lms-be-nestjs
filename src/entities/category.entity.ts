@@ -9,6 +9,7 @@ export class CategoryEntity extends CustomBaseEntity {
   @Column({
     name: 'category_name',
     nullable: false,
+    unique: true,
   })
   categoryName: string;
 
@@ -19,13 +20,19 @@ export class CategoryEntity extends CustomBaseEntity {
   })
   parentId: number | null;
 
-  @ManyToOne(() => CategoryEntity, (category: CategoryEntity) => category.children)
+  @ManyToOne(
+    () => CategoryEntity,
+    (category: CategoryEntity) => category.children,
+  )
   @JoinColumn({
     name: 'parent_id',
   })
   parent: CategoryEntity;
 
-  @OneToMany(() => CategoryEntity, (category: CategoryEntity) => category.parent)
+  @OneToMany(
+    () => CategoryEntity,
+    (category: CategoryEntity) => category.parent,
+  )
   children: CategoryEntity[];
 
   @OneToMany(() => CourseEntity, (course: CourseEntity) => course.category)

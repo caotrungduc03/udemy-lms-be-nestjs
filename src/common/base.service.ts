@@ -2,7 +2,9 @@ import { BadRequestException } from '@nestjs/common';
 import { BaseEntity, DeleteResult, FindOneOptions, Repository } from 'typeorm';
 import { IBaseService } from './i.base.service';
 
-export abstract class BaseService<T extends BaseEntity> implements IBaseService<T> {
+export abstract class BaseService<T extends BaseEntity>
+  implements IBaseService<T>
+{
   constructor(protected readonly repository: Repository<T>) {}
 
   async findAll(): Promise<T[]> {
@@ -26,7 +28,9 @@ export abstract class BaseService<T extends BaseEntity> implements IBaseService<
     return this.repository.delete(id);
   }
 
-  async query(queryObj: any): Promise<[page: number, limit: number, total: number, data: T[]]> {
+  async query(
+    queryObj: any,
+  ): Promise<[page: number, limit: number, total: number, data: T[]]> {
     let { page = 1, limit = 10, sort = 'id:asc', ...filter } = queryObj;
     page = Number(page);
     limit = Math.min(Number(limit), 100);
@@ -39,16 +43,37 @@ export abstract class BaseService<T extends BaseEntity> implements IBaseService<
     const metadata = this.repository.metadata;
 
     Object.keys(filter).forEach((key) => {
-      const columnExists = metadata.columns.some((column) => column.propertyName === key);
+      const columnExists = metadata.columns.some(
+        (column) => column.propertyName === key,
+      );
       if (columnExists) {
-        queryBuilder.andWhere(`entity.${key} = :${key}`, { [key]: filter[key] });
+        if (typeof filter[key] === 'string') {
+          if (isNaN(Number(filter[key]))) {
+            queryBuilder.andWhere(`entity.${key} ILIKE :${key}`, {
+              [key]: `%${filter[key]}%`,
+            });
+          } else {
+            queryBuilder.andWhere(`entity.${key} = :${key}`, {
+              [key]: Number(filter[key]),
+            });
+          }
+        } else {
+          queryBuilder.andWhere(`entity.${key} = :${key}`, {
+            [key]: filter[key],
+          });
+        }
       }
     });
 
     const [sortColumn, sortOrder] = sort.split(':');
-    const columnExists = metadata.columns.some((column) => column.propertyName === sortColumn);
+    const columnExists = metadata.columns.some(
+      (column) => column.propertyName === sortColumn,
+    );
     if (columnExists) {
-      queryBuilder.orderBy(`entity.${sortColumn}`, sortOrder.toUpperCase() as 'ASC' | 'DESC');
+      queryBuilder.orderBy(
+        `entity.${sortColumn}`,
+        sortOrder.toUpperCase() as 'ASC' | 'DESC',
+      );
     }
 
     queryBuilder.skip((page - 1) * limit);

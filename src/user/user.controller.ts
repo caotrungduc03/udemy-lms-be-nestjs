@@ -19,7 +19,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from 'src/dtos';
 import { UserDto } from 'src/dtos/user/user.dto';
 import { UserEntity } from 'src/entities';
-import { CustomParseFilePipe } from 'src/utils/CustomParseFile.pipe';
+import { CustomParseFilePipe } from 'src/utils/customParseFile.pipe';
 import { CustomResponse } from 'src/utils/customResponse';
 import { IPagination } from 'src/utils/i.pagination';
 import { RoleEnum } from 'src/utils/role.enum';

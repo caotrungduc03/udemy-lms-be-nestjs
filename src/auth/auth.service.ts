@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LoginRequestDto, LoginResponseDto, RegisterDto, UserDto } from 'src/dtos';
+import { LoginRequestDto, LoginResponseDto, UserDto } from 'src/dtos';
 import { UserEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { comparePassword } from 'src/utils/bcrypt';
@@ -11,16 +11,11 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
-
-  async register(registerDto: RegisterDto): Promise<UserDto> {
-    const user = await this.userService.create(registerDto);
-
-    return UserDto.plainToInstance(user);
-  }
 
   async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
     loginRequestDto.email = loginRequestDto.email.toLowerCase();

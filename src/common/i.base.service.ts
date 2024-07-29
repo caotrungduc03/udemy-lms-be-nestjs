@@ -10,4 +10,6 @@ export interface IBaseService<T> {
   update(id: number, data: any, options: FindOneOptions<T>): Promise<T>;
 
   delete(id: number): Promise<DeleteResult>;
+
+  query(queryObj: any): Promise<[number, number, number, T[]]>;
 }

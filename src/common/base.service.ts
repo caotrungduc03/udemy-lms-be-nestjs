@@ -30,6 +30,7 @@ export abstract class BaseService<T extends BaseEntity>
 
   async query(
     queryObj: any,
+    relations: string[] = [],
   ): Promise<[page: number, limit: number, total: number, data: T[]]> {
     let { page = 1, limit = 10, sort = 'id:asc', ...filter } = queryObj;
     page = Number(page);
@@ -40,8 +41,11 @@ export abstract class BaseService<T extends BaseEntity>
     }
 
     const queryBuilder = this.repository.createQueryBuilder('entity');
-    const metadata = this.repository.metadata;
+    relations.forEach((relation) => {
+      queryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
+    });
 
+    const metadata = this.repository.metadata;
     Object.keys(filter).forEach((key) => {
       const columnExists = metadata.columns.some(
         (column) => column.propertyName === key,

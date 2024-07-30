@@ -11,5 +11,8 @@ export interface IBaseService<T> {
 
   delete(id: number): Promise<DeleteResult>;
 
-  query(queryObj: any): Promise<[number, number, number, T[]]>;
+  query(
+    queryObj: any,
+    relations: string[],
+  ): Promise<[number, number, number, T[]]>;
 }

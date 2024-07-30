@@ -5,8 +5,8 @@ import { LoginRequestDto, LoginResponseDto, UserDto } from 'src/dtos';
 import { UserEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { comparePassword } from 'src/utils/bcrypt';
-import { JwtPayload } from 'src/utils/i.jwtPayload';
 import { Repository } from 'typeorm';
+import { JwtPayload } from './auth.guard';
 
 @Injectable()
 export class AuthService {

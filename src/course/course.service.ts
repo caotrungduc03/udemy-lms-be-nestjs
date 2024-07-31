@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryService } from 'src/category/category.service';
 import { BaseService } from 'src/common/base.service';
@@ -9,14 +13,17 @@ import { DeleteResult, Repository } from 'typeorm';
 @Injectable()
 export class CourseService extends BaseService<CourseEntity> {
   constructor(
-    @InjectRepository(CourseEntity) private readonly courseRepository: Repository<CourseEntity>,
+    @InjectRepository(CourseEntity)
+    private readonly courseRepository: Repository<CourseEntity>,
     private readonly categoryService: CategoryService,
   ) {
     super(courseRepository);
   }
 
   async findAll(): Promise<CourseEntity[]> {
-    return await this.courseRepository.find({ relations: ['author', 'category'] });
+    return await this.courseRepository.find({
+      relations: ['author', 'category'],
+    });
   }
 
   async findById(id: number): Promise<CourseEntity> {
@@ -37,7 +44,10 @@ export class CourseService extends BaseService<CourseEntity> {
     return course;
   }
 
-  async updateById(id: number, updateCourseDto: UpdateCourseDto): Promise<CourseEntity> {
+  async updateById(
+    id: number,
+    updateCourseDto: UpdateCourseDto,
+  ): Promise<CourseEntity> {
     const { authorId, ...remainingData } = updateCourseDto;
     const course: CourseEntity = await this.findById(id);
 
@@ -46,7 +56,9 @@ export class CourseService extends BaseService<CourseEntity> {
     }
 
     if (course.categoryId !== remainingData.categoryId) {
-      const category = await this.categoryService.findById(remainingData.categoryId);
+      const category = await this.categoryService.findById(
+        remainingData.categoryId,
+      );
       course.category = category;
     }
 
@@ -64,5 +76,14 @@ export class CourseService extends BaseService<CourseEntity> {
     }
 
     return this.courseRepository.delete(id);
+  }
+
+  async findByIdAndVerifyAuthor(id: number, authorId: number) {
+    const course = await this.findById(id);
+    if (course.authorId !== authorId) {
+      throw new ForbiddenException('You are not allowed to access this course');
+    }
+
+    return course;
   }
 }

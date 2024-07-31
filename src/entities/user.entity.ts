@@ -1,6 +1,7 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { CourseEntity } from './course.entity';
+import { ProgressEntity } from './progress.entity';
 import { RoleEntity } from './role.entity';
 
 @Entity({ name: 'users' })
@@ -59,5 +60,8 @@ export class UserEntity extends CustomBaseEntity {
   role: RoleEntity;
 
   @OneToMany(() => CourseEntity, (course: CourseEntity) => course.author)
-  courses: CourseEntity[];
+  author: CourseEntity[];
+
+  @OneToMany(() => ProgressEntity, (progress: ProgressEntity) => progress.user)
+  progress: ProgressEntity[];
 }

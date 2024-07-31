@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from 'src/dtos';
 import { CategoryEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
@@ -15,7 +25,8 @@ export class CategoryController {
   @Get('/')
   @Public()
   async find(@Query() queryObj: Object) {
-    const [page, limit, total, categories] = await this.categoryService.query(queryObj);
+    const [page, limit, total, categories] =
+      await this.categoryService.query(queryObj);
     const results: IPagination<CategoryDto> = {
       page,
       limit,
@@ -43,13 +54,23 @@ export class CategoryController {
   async findById(@Param('id') id: number) {
     const category = await this.categoryService.findById(id);
 
-    return new CustomResponse(HttpStatus.OK, 'Success', CategoryDto.plainToInstance(category));
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Success',
+      CategoryDto.plainToInstance(category),
+    );
   }
 
   @Put('/:id')
   @Roles(RoleEnum.ADMIN)
-  async updateById(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
-    const category: CategoryEntity = await this.categoryService.updateById(id, updateCategoryDto);
+  async updateById(
+    @Param('id') id: number,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+    const category: CategoryEntity = await this.categoryService.updateById(
+      id,
+      updateCategoryDto,
+    );
 
     return new CustomResponse(
       HttpStatus.OK,

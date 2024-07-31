@@ -14,6 +14,7 @@ import {
 import { UserEntity } from 'src/entities';
 import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
+import { pickFields } from 'src/utils/pickFields';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -26,12 +27,8 @@ export class UserService extends BaseService<UserEntity> {
     super(userRepository);
   }
 
-  async findAll(): Promise<UserEntity[]> {
-    return this.userRepository.find({ relations: ['role'] });
-  }
-
   async findById(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
+    const user = await this.findOne({
       where: { id },
       relations: ['role'],
     });
@@ -49,11 +46,11 @@ export class UserService extends BaseService<UserEntity> {
       throw new BadRequestException('Passwords do not match');
     }
 
-    createUserDto.email = createUserDto.email.toLowerCase();
-
-    const user = await this.userRepository.findOne({
+    const newUser = new UserEntity();
+    newUser.email = createUserDto.email.toLowerCase();
+    const user = await this.findOne({
       where: {
-        email: createUserDto.email,
+        email: newUser.email,
       },
     });
     if (user) {
@@ -62,43 +59,51 @@ export class UserService extends BaseService<UserEntity> {
 
     if (!createUserDto['roleId']) {
       const defaultRole = await this.roleService.findByName('STUDENT');
-      createUserDto['roleId'] = defaultRole.id;
+      newUser.role = defaultRole;
     }
 
-    createUserDto.password = encodePassword(createUserDto.password);
+    newUser.password = encodePassword(createUserDto.password);
 
-    const createdUser = await this.userRepository.save(createUserDto);
-
-    return createdUser;
+    return this.store({
+      ...createUserDto,
+      ...newUser,
+    });
   }
 
   async updateById(
     id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<UserEntity> {
+    const updateData = pickFields(updateUserDto, [
+      'fullName',
+      'phoneNumber',
+      'avatar',
+      'roleId',
+      'status',
+    ]);
     const user = await this.findById(id);
 
-    if (updateUserDto.roleId !== user.roleId) {
-      const role = await this.roleService.findById(updateUserDto.roleId);
+    if (updateData.roleId !== user.roleId) {
+      const role = await this.roleService.findById(updateData.roleId);
       user.role = role;
     }
 
-    return this.userRepository.save({
+    return this.store({
       ...user,
-      ...updateUserDto,
+      ...updateData,
     });
   }
 
   async deleteById(id: number): Promise<UserEntity> {
     const user = await this.findById(id);
 
-    await this.userRepository.delete(id);
+    await this.delete(id);
 
     return user;
   }
 
   async findByEmail(email: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
+    return this.findOne({
       where: { email },
       relations: ['role'],
       select: [
@@ -113,25 +118,26 @@ export class UserService extends BaseService<UserEntity> {
         'roleId',
       ],
     });
-
-    return user;
   }
 
   async updateProfile(
     id: number,
     updateProfileDto: UpdateProfileDto,
   ): Promise<UserEntity> {
+    const updateData = pickFields(updateProfileDto, [
+      'fullName',
+      'phoneNumber',
+      'avatar',
+    ]);
     const user = await this.findById(id);
 
-    if (!updateProfileDto.avatar) {
-      updateProfileDto.avatar = user.avatar;
+    if (!updateData.avatar) {
+      updateData.avatar = user.avatar;
     }
 
-    const updatedUser = await this.userRepository.save({
+    return this.store({
       ...user,
       ...updateProfileDto,
     });
-
-    return updatedUser;
   }
 }

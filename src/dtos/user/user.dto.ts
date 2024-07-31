@@ -1,4 +1,4 @@
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { BaseDto } from 'src/common/base.dto';
 import { RoleDto } from '../role/role.dto';
 
@@ -6,10 +6,14 @@ export class UserDto extends BaseDto {
   @Expose()
   fullName: string;
 
-  @Expose()
+  @Expose({
+    groups: ['private', 'admin'],
+  })
   email: string;
 
-  @Expose()
+  @Expose({
+    groups: ['private', 'admin'],
+  })
   phoneNumber: string;
 
   @Expose()
@@ -18,17 +22,19 @@ export class UserDto extends BaseDto {
   @Exclude()
   roleId: number;
 
-  @Expose()
+  @Expose({
+    groups: ['admin'],
+  })
   status: boolean;
 
-  @Expose()
+  @Expose({
+    groups: ['admin'],
+  })
   lastLogin: Date;
 
-  @Exclude()
+  @Expose({
+    groups: ['private', 'admin'],
+  })
   @Type(() => RoleDto)
   role: RoleDto;
-
-  @Expose()
-  @Transform(({ obj }) => obj?.role?.roleName)
-  roleName: string;
 }

@@ -9,6 +9,16 @@ export abstract class BaseDto {
   })
   createdAt: Date;
 
+  @Expose({
+    groups: ['admin'],
+  })
+  updatedAt: Date;
+
+  @Expose({
+    groups: ['admin'],
+  })
+  deletedAt: Date;
+
   static plainToInstance<T>(
     this: new (...args: any[]) => T,
     entity: any,

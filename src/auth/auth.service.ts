@@ -1,24 +1,20 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
 import { LoginRequestDto, LoginResponseDto, UserDto } from 'src/dtos';
-import { UserEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { comparePassword } from 'src/utils/bcrypt';
-import { Repository } from 'typeorm';
 import { JwtPayload } from './auth.guard';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
   async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
-    loginRequestDto.email = loginRequestDto.email.toLowerCase();
+    let { email, password } = loginRequestDto;
+    email = email.toLowerCase();
     const user = await this.userService.findByEmail(loginRequestDto.email);
     if (!user) {
       throw new UnauthorizedException('Email or password is incorrect');
@@ -27,15 +23,14 @@ export class AuthService {
     if (!user.status) {
       throw new UnauthorizedException('Your account is not active');
     }
-
-    const isMatch = comparePassword(loginRequestDto.password, user.password);
+    const isMatch = comparePassword(password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Email or password is incorrect');
     }
 
     user.lastLogin = new Date();
 
-    await this.userRepository.save(user);
+    await this.userService.store(user);
 
     const payload: JwtPayload = {
       userId: user.id,
@@ -44,7 +39,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     return {
-      user: UserDto.plainToInstance(user),
+      user: UserDto.plainToInstance(user, ['private']),
       accessToken,
     };
   }

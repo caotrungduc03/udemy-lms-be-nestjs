@@ -28,14 +28,16 @@ export class CourseController {
   @Get('/')
   @Public()
   async find(@Query() queryObj: Object) {
-    const [page, limit, total, courses] =
-      await this.courseService.query(queryObj);
+    const [page, limit, total, courses] = await this.courseService.query(
+      queryObj,
+      ['author', 'category'],
+    );
 
     const results: IPagination<CourseDto> = {
       page,
       limit,
       total,
-      items: CourseDto.plainToInstance(courses),
+      items: CourseDto.plainToInstance(courses, ['public']),
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
@@ -68,7 +70,7 @@ export class CourseController {
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
-      CourseDto.plainToInstance(course),
+      CourseDto.plainToInstance(course, ['public']),
     );
   }
 

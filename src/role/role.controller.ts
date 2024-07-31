@@ -31,7 +31,7 @@ export class RoleController {
       page,
       limit,
       total,
-      items: RoleDto.plainToInstance(roles),
+      items: RoleDto.plainToInstance(roles, ['admin']),
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
@@ -42,7 +42,11 @@ export class RoleController {
   async findById(@Param('id', ParseIntPipe) id: number) {
     const role: RoleEntity = await this.roleService.findById(id);
 
-    return new CustomResponse(HttpStatus.OK, 'Success', RoleDto.plainToInstance(role));
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Success',
+      RoleDto.plainToInstance(role, ['admin']),
+    );
   }
 
   @Post('/')
@@ -50,15 +54,29 @@ export class RoleController {
   async create(@Body() createRoleDto: CreateRoleDto) {
     const role: RoleEntity = await this.roleService.create(createRoleDto);
 
-    return new CustomResponse(HttpStatus.OK, 'Created a new role', RoleDto.plainToInstance(role));
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Created a new role',
+      RoleDto.plainToInstance(role, ['admin']),
+    );
   }
 
   @Put('/:id')
   @Roles(RoleEnum.ADMIN)
-  async updateById(@Param('id', ParseIntPipe) id: number, @Body() updateRoleDto: UpdateRoleDto) {
-    const role: RoleEntity = await this.roleService.updateById(id, updateRoleDto);
+  async updateById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
+    const role: RoleEntity = await this.roleService.updateById(
+      id,
+      updateRoleDto,
+    );
 
-    return new CustomResponse(HttpStatus.OK, 'Updated a role', RoleDto.plainToInstance(role));
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Updated a role',
+      RoleDto.plainToInstance(role, ['admin']),
+    );
   }
 
   @Delete('/:id')

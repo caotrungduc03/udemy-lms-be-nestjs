@@ -1,12 +1,21 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
-import { JwtPayload } from 'src/utils/i.jwtPayload';
 import { IS_PUBLIC_KEY } from '../utils/public.decorator';
 import { RoleEnum } from '../utils/role.enum';
 import { ROLES_KEY } from '../utils/roles.decorator';
+
+export type JwtPayload = {
+  userId: number;
+  email: string;
+};
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,7 +28,8 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     return (
       (await this.isPublicRoute(context)) ||
-      ((await this.isTokenValid(context)) && (await this.isUserHasRequiredRoles(context)))
+      ((await this.isTokenValid(context)) &&
+        (await this.isUserHasRequiredRoles(context)))
     );
   }
 
@@ -58,18 +68,23 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private async isUserHasRequiredRoles(context: ExecutionContext): Promise<boolean> {
+  private async isUserHasRequiredRoles(
+    context: ExecutionContext,
+  ): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const payload = request['user'];
-    const requiredRoles = this.reflector.getAllAndOverride<RoleEnum[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndOverride<RoleEnum[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     return !requiredRoles || this.isUserInRequiredRoles(payload, requiredRoles);
   }
 
-  private async isUserInRequiredRoles(payload: any, requiredRoles: RoleEnum[]): Promise<boolean> {
+  private async isUserInRequiredRoles(
+    payload: any,
+    requiredRoles: RoleEnum[],
+  ): Promise<boolean> {
     const user = await this.userService.findById(payload.userId);
     if (!user.status) {
       throw new UnauthorizedException('Your account is not active');

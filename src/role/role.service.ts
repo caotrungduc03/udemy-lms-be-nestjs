@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CreateRoleDto, UpdateRoleDto } from 'src/dtos';
@@ -8,17 +12,14 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class RoleService extends BaseService<RoleEntity> {
   constructor(
-    @InjectRepository(RoleEntity) private readonly roleRepository: Repository<RoleEntity>,
+    @InjectRepository(RoleEntity)
+    private readonly roleRepository: Repository<RoleEntity>,
   ) {
     super(roleRepository);
   }
 
-  async findAll(): Promise<RoleEntity[]> {
-    return this.roleRepository.find();
-  }
-
   async findById(id: number): Promise<RoleEntity> {
-    const role = await this.roleRepository.findOne({ where: { id } });
+    const role = await this.findOne({ where: { id } });
 
     if (!role) {
       throw new NotFoundException('Role not found');
@@ -28,41 +29,35 @@ export class RoleService extends BaseService<RoleEntity> {
   }
 
   async create(createRoleDto: CreateRoleDto): Promise<RoleEntity> {
-    const role = await this.roleRepository.findOne({
-      where: {
-        roleName: createRoleDto.roleName,
-      },
-    });
-
+    const role = await this.findByName(createRoleDto.roleName);
     if (role) {
       throw new BadRequestException('Role already exists');
     }
 
-    return this.roleRepository.save(createRoleDto);
+    return this.store(createRoleDto);
   }
 
-  async updateById(id: number, updateRoleDto: UpdateRoleDto): Promise<RoleEntity> {
+  async updateById(
+    id: number,
+    updateRoleDto: UpdateRoleDto,
+  ): Promise<RoleEntity> {
     const role = await this.findById(id);
 
-    const updatedRole = await this.roleRepository.save({
+    return this.store({
       ...role,
       ...updateRoleDto,
     });
-
-    return updatedRole;
   }
 
   async deleteById(id: number): Promise<RoleEntity> {
     const role = await this.findById(id);
 
-    await this.roleRepository.delete(id);
+    await this.delete(id);
 
     return role;
   }
 
   async findByName(roleName: string): Promise<RoleEntity> {
-    const role = await this.roleRepository.findOne({ where: { roleName } });
-
-    return role;
+    return this.findOne({ where: { roleName } });
   }
 }

@@ -1,4 +1,4 @@
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { BaseDto } from 'src/common/base.dto';
 import { CategoryDto } from '../category/category.dto';
 import { UserDto } from '../user/user.dto';
@@ -22,19 +22,11 @@ export class CourseDto extends BaseDto {
   @Expose()
   language: string;
 
-  @Exclude()
+  @Expose()
   @Type(() => UserDto)
   author: UserDto;
 
   @Expose()
-  @Transform(({ obj }) => obj?.author?.fullName)
-  authorName: string;
-
-  @Exclude()
   @Type(() => CategoryDto)
   category: CategoryDto;
-
-  @Expose()
-  @Transform(({ obj }) => obj?.category?.categoryName)
-  categoryName: string;
 }

@@ -28,13 +28,16 @@ export class CourseController {
   @Get('/')
   @Public()
   async find(@Query() queryObj: Object) {
-    const [page, limit, total, courses] = await this.courseService.query(queryObj);
+    const [page, limit, total, courses] = await this.courseService.query(
+      queryObj,
+      ['author', 'category'],
+    );
 
     const results: IPagination<CourseDto> = {
       page,
       limit,
       total,
-      items: CourseDto.plainToInstance(courses),
+      items: CourseDto.plainToInstance(courses, ['public']),
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
@@ -42,7 +45,10 @@ export class CourseController {
 
   @Post('/')
   @Roles(RoleEnum.ADMIN, RoleEnum.PROFESSOR)
-  async create(@Req() request: Request, @Body() createCourseDto: CreateCourseDto) {
+  async create(
+    @Req() request: Request,
+    @Body() createCourseDto: CreateCourseDto,
+  ) {
     const userReq = request['user'];
     const course: CourseEntity = await this.courseService.create({
       ...createCourseDto,
@@ -61,7 +67,11 @@ export class CourseController {
   async findById(@Param('id', ParseIntPipe) id: number) {
     const course: CourseEntity = await this.courseService.findById(id);
 
-    return new CustomResponse(HttpStatus.OK, 'Success', CourseDto.plainToInstance(course));
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Success',
+      CourseDto.plainToInstance(course, ['public']),
+    );
   }
 
   @Put('/:id')
@@ -78,7 +88,11 @@ export class CourseController {
       authorId: userReq.userId,
     });
 
-    return new CustomResponse(HttpStatus.OK, 'Updated a course', CourseDto.plainToInstance(course));
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Updated a course',
+      CourseDto.plainToInstance(course),
+    );
   }
 
   @Delete('/:id')

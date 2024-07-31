@@ -27,7 +27,7 @@ export class AuthController {
     return new CustomResponse(
       HttpStatus.CREATED,
       'User created',
-      UserDto.plainToInstance(user),
+      UserDto.plainToInstance(user, ['private']),
     );
   }
 

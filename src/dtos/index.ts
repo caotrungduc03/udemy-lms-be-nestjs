@@ -7,6 +7,8 @@ export * from './category/updateCategory.dto';
 export * from './course/course.dto';
 export * from './course/createCourse.dto';
 export * from './course/updateCourse.dto';
+export * from './progress/createProgress.dto';
+export * from './progress/progress.dto';
 export * from './role/createRole.dto';
 export * from './role/role.dto';
 export * from './role/updateRole.dto';

@@ -36,12 +36,15 @@ export class UserController {
   @Get('/')
   @Roles(RoleEnum.ADMIN)
   async find(@Query() queryObj: Object) {
-    const [page, limit, total, items] = await this.userService.query(queryObj);
+    const [page, limit, total, items] = await this.userService.query(queryObj, [
+      'role',
+    ]);
+    console.log(items);
     const results: IPagination<UserDto> = {
       page,
       limit,
       total,
-      items: UserDto.plainToInstance(items),
+      items: UserDto.plainToInstance(items, ['admin']),
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
@@ -55,7 +58,7 @@ export class UserController {
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
-      UserDto.plainToInstance(user),
+      UserDto.plainToInstance(user, ['private']),
     );
   }
 
@@ -81,7 +84,7 @@ export class UserController {
     return new CustomResponse(
       HttpStatus.OK,
       'Updated profile',
-      UserDto.plainToInstance(user),
+      UserDto.plainToInstance(user, ['private']),
     );
   }
 
@@ -93,7 +96,7 @@ export class UserController {
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
-      UserDto.plainToInstance(user),
+      UserDto.plainToInstance(user, ['admin']),
     );
   }
 
@@ -105,7 +108,7 @@ export class UserController {
     return new CustomResponse(
       HttpStatus.CREATED,
       'Created a new user',
-      UserDto.plainToInstance(user),
+      UserDto.plainToInstance(user, ['admin']),
     );
   }
 
@@ -123,7 +126,7 @@ export class UserController {
     return new CustomResponse(
       HttpStatus.OK,
       'Updated a user',
-      UserDto.plainToInstance(user),
+      UserDto.plainToInstance(user, ['admin']),
     );
   }
 

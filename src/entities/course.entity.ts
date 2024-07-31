@@ -1,6 +1,7 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
 import { CategoryEntity } from './category.entity';
+import { ProgressEntity } from './progress.entity';
 import { UserEntity } from './user.entity';
 
 @Entity({
@@ -43,7 +44,7 @@ export class CourseEntity extends CustomBaseEntity {
   })
   authorId: number;
 
-  @ManyToOne(() => UserEntity, (user: UserEntity) => user.courses)
+  @ManyToOne(() => UserEntity, (user: UserEntity) => user.author)
   @JoinColumn({
     name: 'author_id',
   })
@@ -55,9 +56,18 @@ export class CourseEntity extends CustomBaseEntity {
   })
   categoryId: number;
 
-  @ManyToOne(() => CategoryEntity, (category: CategoryEntity) => category.courses)
+  @ManyToOne(
+    () => CategoryEntity,
+    (category: CategoryEntity) => category.courses,
+  )
   @JoinColumn({
     name: 'category_id',
   })
   category: CategoryEntity;
+
+  @ManyToMany(
+    () => ProgressEntity,
+    (progress: ProgressEntity) => progress.course,
+  )
+  progress: ProgressEntity[];
 }

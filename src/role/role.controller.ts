@@ -55,7 +55,7 @@ export class RoleController {
     const role: RoleEntity = await this.roleService.create(createRoleDto);
 
     return new CustomResponse(
-      HttpStatus.OK,
+      HttpStatus.CREATED,
       'Created a new role',
       RoleDto.plainToInstance(role, ['admin']),
     );

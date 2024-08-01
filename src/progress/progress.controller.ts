@@ -28,7 +28,9 @@ export class ProgressController {
         ...queryObj,
         userId: userReq.userId,
       },
-      ['course'],
+      {
+        relations: ['course'],
+      },
     );
     const results: IPagination<ProgressDto> = {
       page,
@@ -44,31 +46,13 @@ export class ProgressController {
     );
   }
 
-  @Post('/')
-  async create(
-    @Req() request: Request,
-    @Body() createProgressDto: CreateProgressDto,
-  ) {
-    const userReq = request['user'];
-
-    const progress = await this.progressService.create({
-      ...createProgressDto,
-      userId: userReq.userId,
-    });
-    return new CustomResponse(
-      HttpStatus.CREATED,
-      'Progress created successfully',
-      ProgressDto.plainToInstance(progress),
-    );
-  }
-
   @Get('/courses/:courseId')
   async findStudentByCourseId(
     @Req() request: Request,
     @Param('courseId') courseId: number,
   ) {
     const userReq = request['user'];
-    const [page, limit, total, items] =
+    const [page, limit, total, progress] =
       await this.progressService.findStudentByCourseId(
         courseId,
         userReq.userId,
@@ -78,7 +62,7 @@ export class ProgressController {
       page,
       limit,
       total,
-      items: ProgressDto.plainToInstance(items),
+      items: ProgressDto.plainToInstance(progress, ['progress']),
     };
 
     return new CustomResponse(
@@ -102,6 +86,24 @@ export class ProgressController {
       HttpStatus.OK,
       'Progress retrieved successfully',
       ProgressDto.plainToInstance(progress, ['student']),
+    );
+  }
+
+  @Post('/')
+  async create(
+    @Req() request: Request,
+    @Body() createProgressDto: CreateProgressDto,
+  ) {
+    const userReq = request['user'];
+
+    const progress = await this.progressService.create({
+      ...createProgressDto,
+      userId: userReq.userId,
+    });
+    return new CustomResponse(
+      HttpStatus.CREATED,
+      'Progress created successfully',
+      ProgressDto.plainToInstance(progress),
     );
   }
 

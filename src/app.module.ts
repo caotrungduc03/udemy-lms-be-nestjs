@@ -17,6 +17,7 @@ import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ProgressModule } from './progress/progress.module';
+import { LessonModule } from './lesson/lesson.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ProgressModule } from './progress/progress.module';
     CategoryModule,
     CloudinaryModule,
     ProgressModule,
+    LessonModule,
   ],
   controllers: [],
   providers: [

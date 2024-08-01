@@ -1,3 +1,4 @@
+import { QueryOptions } from 'src/utils/options';
 import { DeleteResult, FindOneOptions } from 'typeorm';
 
 export interface IBaseService<T> {
@@ -13,6 +14,11 @@ export interface IBaseService<T> {
 
   query(
     queryObj: any,
-    relations: string[],
+    options?: QueryOptions,
+  ): Promise<[number, number, number, T[]]>;
+
+  search(
+    queryObj: any,
+    options?: QueryOptions,
   ): Promise<[number, number, number, T[]]>;
 }

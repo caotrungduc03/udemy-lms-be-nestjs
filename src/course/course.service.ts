@@ -9,6 +9,7 @@ import { BaseService } from 'src/common/base.service';
 import { CreateCourseDto, UpdateCourseDto } from 'src/dtos';
 import { CourseEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
+import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
 import { DeleteResult, Repository } from 'typeorm';
 
@@ -23,10 +24,12 @@ export class CourseService extends BaseService<CourseEntity> {
     super(courseRepository);
   }
 
-  async findById(id: number): Promise<CourseEntity> {
+  async findById(id: number, options?: FindOptions): Promise<CourseEntity> {
+    const { relations = [] } = options || {};
+
     const course = await this.findOne({
       where: { id },
-      relations: ['author', 'category'],
+      relations,
     });
     if (!course) {
       throw new NotFoundException('Course not found');
@@ -77,7 +80,7 @@ export class CourseService extends BaseService<CourseEntity> {
       course.category = category;
     }
 
-    return this.courseRepository.save({
+    return this.store({
       ...course,
       ...updateData,
     });
@@ -90,7 +93,7 @@ export class CourseService extends BaseService<CourseEntity> {
       throw new ForbiddenException('You are not allowed to delete this course');
     }
 
-    return this.courseRepository.delete(id);
+    return this.delete(id);
   }
 
   async findByIdAndVerifyAuthor(id: number, authorId: number) {

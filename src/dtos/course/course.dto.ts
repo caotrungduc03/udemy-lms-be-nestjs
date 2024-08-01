@@ -1,6 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { BaseDto } from 'src/common/base.dto';
 import { CategoryDto } from '../category/category.dto';
+import { LessonDto } from '../lesson/lesson.dto';
 import { UserDto } from '../user/user.dto';
 
 export class CourseDto extends BaseDto {
@@ -29,4 +30,8 @@ export class CourseDto extends BaseDto {
   @Expose()
   @Type(() => CategoryDto)
   category: CategoryDto;
+
+  @Expose()
+  @Type(() => LessonDto)
+  lessons: LessonDto[];
 }

@@ -44,7 +44,7 @@ export class CourseController {
   }
 
   @Post('/')
-  @Roles(RoleEnum.ADMIN, RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR)
   async create(
     @Req() request: Request,
     @Body() createCourseDto: CreateCourseDto,
@@ -56,7 +56,7 @@ export class CourseController {
     });
 
     return new CustomResponse(
-      HttpStatus.OK,
+      HttpStatus.CREATED,
       'Created a new course',
       CourseDto.plainToInstance(course),
     );
@@ -65,7 +65,9 @@ export class CourseController {
   @Get('/:id')
   @Public()
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const course: CourseEntity = await this.courseService.findById(id);
+    const course: CourseEntity = await this.courseService.findById(id, {
+      relations: ['author', 'category', 'lessons'],
+    });
 
     return new CustomResponse(
       HttpStatus.OK,
@@ -75,7 +77,7 @@ export class CourseController {
   }
 
   @Put('/:id')
-  @Roles(RoleEnum.ADMIN, RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR)
   async updateById(
     @Req() request: Request,
     @Param('id', ParseIntPipe) id: number,
@@ -96,7 +98,7 @@ export class CourseController {
   }
 
   @Delete('/:id')
-  @Roles(RoleEnum.ADMIN, RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR)
   async delete(@Req() request: Request, @Param('id', ParseIntPipe) id: number) {
     const userReq = request['user'];
 

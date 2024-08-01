@@ -1,6 +1,14 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { CategoryEntity } from './category.entity';
+import { LessonEntity } from './lesson.entity';
 import { ProgressEntity } from './progress.entity';
 import { UserEntity } from './user.entity';
 
@@ -70,4 +78,7 @@ export class CourseEntity extends CustomBaseEntity {
     (progress: ProgressEntity) => progress.course,
   )
   progress: ProgressEntity[];
+
+  @OneToMany(() => LessonEntity, (lesson: LessonEntity) => lesson.course)
+  lessons: LessonEntity[];
 }

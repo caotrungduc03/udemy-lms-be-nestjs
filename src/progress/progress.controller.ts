@@ -68,7 +68,7 @@ export class ProgressController {
     @Param('courseId') courseId: number,
   ) {
     const userReq = request['user'];
-    const [page, limit, total, items] =
+    const [page, limit, total, progress] =
       await this.progressService.findStudentByCourseId(
         courseId,
         userReq.userId,
@@ -78,7 +78,7 @@ export class ProgressController {
       page,
       limit,
       total,
-      items: ProgressDto.plainToInstance(items),
+      items: ProgressDto.plainToInstance(progress, ['progress']),
     };
 
     return new CustomResponse(

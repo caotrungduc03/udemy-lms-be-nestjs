@@ -28,7 +28,9 @@ export class ProgressController {
         ...queryObj,
         userId: userReq.userId,
       },
-      ['course'],
+      {
+        relations: ['course'],
+      },
     );
     const results: IPagination<ProgressDto> = {
       page,
@@ -41,24 +43,6 @@ export class ProgressController {
       HttpStatus.OK,
       'Progress retrieved successfully',
       results,
-    );
-  }
-
-  @Post('/')
-  async create(
-    @Req() request: Request,
-    @Body() createProgressDto: CreateProgressDto,
-  ) {
-    const userReq = request['user'];
-
-    const progress = await this.progressService.create({
-      ...createProgressDto,
-      userId: userReq.userId,
-    });
-    return new CustomResponse(
-      HttpStatus.CREATED,
-      'Progress created successfully',
-      ProgressDto.plainToInstance(progress),
     );
   }
 
@@ -102,6 +86,24 @@ export class ProgressController {
       HttpStatus.OK,
       'Progress retrieved successfully',
       ProgressDto.plainToInstance(progress, ['student']),
+    );
+  }
+
+  @Post('/')
+  async create(
+    @Req() request: Request,
+    @Body() createProgressDto: CreateProgressDto,
+  ) {
+    const userReq = request['user'];
+
+    const progress = await this.progressService.create({
+      ...createProgressDto,
+      userId: userReq.userId,
+    });
+    return new CustomResponse(
+      HttpStatus.CREATED,
+      'Progress created successfully',
+      ProgressDto.plainToInstance(progress),
     );
   }
 

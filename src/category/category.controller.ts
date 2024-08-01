@@ -27,7 +27,9 @@ export class CategoryController {
   async find(@Query() queryObj: Object) {
     const [page, limit, total, categories] = await this.categoryService.query(
       queryObj,
-      ['parent', 'children'],
+      {
+        relations: ['parent', 'children'],
+      },
     );
     const results: IPagination<CategoryDto> = {
       page,

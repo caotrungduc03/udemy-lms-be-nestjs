@@ -30,7 +30,9 @@ export class CourseController {
   async find(@Query() queryObj: Object) {
     const [page, limit, total, courses] = await this.courseService.query(
       queryObj,
-      ['author', 'category'],
+      {
+        relations: ['author', 'category'],
+      },
     );
 
     const results: IPagination<CourseDto> = {
@@ -41,6 +43,43 @@ export class CourseController {
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
+  }
+
+  @Get('/search')
+  @Public()
+  async search(@Query() queryObj: Object) {
+    const [page, limit, total, courses] = await this.courseService.search(
+      {
+        ...queryObj,
+        columns: ['courseName', 'description'],
+      },
+      {
+        relations: ['author', 'category'],
+      },
+    );
+
+    const results: IPagination<CourseDto> = {
+      page,
+      limit,
+      total,
+      items: CourseDto.plainToInstance(courses, ['public']),
+    };
+
+    return new CustomResponse(HttpStatus.OK, 'Success', results);
+  }
+
+  @Get('/:id')
+  @Public()
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    const course: CourseEntity = await this.courseService.findById(id, {
+      relations: ['author', 'category', 'lessons'],
+    });
+
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Success',
+      CourseDto.plainToInstance(course, ['public']),
+    );
   }
 
   @Post('/')
@@ -59,20 +98,6 @@ export class CourseController {
       HttpStatus.CREATED,
       'Created a new course',
       CourseDto.plainToInstance(course),
-    );
-  }
-
-  @Get('/:id')
-  @Public()
-  async findById(@Param('id', ParseIntPipe) id: number) {
-    const course: CourseEntity = await this.courseService.findById(id, {
-      relations: ['author', 'category', 'lessons'],
-    });
-
-    return new CustomResponse(
-      HttpStatus.OK,
-      'Success',
-      CourseDto.plainToInstance(course, ['public']),
     );
   }
 

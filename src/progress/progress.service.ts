@@ -74,7 +74,12 @@ export class ProgressService extends BaseService<ProgressEntity> {
       userId,
     );
 
-    return this.query({ courseId }, ['course', 'user']);
+    return this.query(
+      { courseId },
+      {
+        relations: ['course', 'user'],
+      },
+    );
   }
 
   async deleteById(id: number, userId: number): Promise<DeleteResult> {

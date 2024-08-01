@@ -36,9 +36,9 @@ export class UserController {
   @Get('/')
   @Roles(RoleEnum.ADMIN)
   async find(@Query() queryObj: Object) {
-    const [page, limit, total, users] = await this.userService.query(queryObj, [
-      'role',
-    ]);
+    const [page, limit, total, users] = await this.userService.query(queryObj, {
+      relations: ['role'],
+    });
     const results: IPagination<UserDto> = {
       page,
       limit,

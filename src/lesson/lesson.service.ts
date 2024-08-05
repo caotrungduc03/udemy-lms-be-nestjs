@@ -8,7 +8,7 @@ import { BaseService } from 'src/common/base.service';
 import { CourseService } from 'src/course/course.service';
 import { CreateLessonDto, UpdateLessonDto } from 'src/dtos';
 import { LessonEntity } from 'src/entities';
-import { FindOptions } from 'src/utils/options';
+import { FindOptions } from 'src/utils/i.options';
 import { pickFields } from 'src/utils/pickFields';
 
 @Injectable()

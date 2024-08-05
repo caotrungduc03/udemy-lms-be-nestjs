@@ -9,7 +9,7 @@ import { CourseService } from 'src/course/course.service';
 import { CreateProgressDto } from 'src/dtos';
 import { ProgressEntity, ProgressLessonsEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/options';
+import { FindOptions } from 'src/utils/i.options';
 import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()

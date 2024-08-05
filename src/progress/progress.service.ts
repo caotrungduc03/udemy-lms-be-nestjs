@@ -7,7 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CourseService } from 'src/course/course.service';
 import { CreateProgressDto } from 'src/dtos';
-import { ProgressEntity } from 'src/entities';
+import { ProgressEntity, ProgressLessonsEntity } from 'src/entities';
+import { UserService } from 'src/user/user.service';
+import { FindOptions } from 'src/utils/options';
 import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
@@ -15,7 +17,10 @@ export class ProgressService extends BaseService<ProgressEntity> {
   constructor(
     @InjectRepository(ProgressEntity)
     private readonly progressRepository: Repository<ProgressEntity>,
+    @InjectRepository(ProgressLessonsEntity)
+    private readonly progressLessonsRepository: Repository<ProgressLessonsEntity>,
     private readonly courseService: CourseService,
+    private readonly userService: UserService,
   ) {
     super(progressRepository);
   }
@@ -38,10 +43,12 @@ export class ProgressService extends BaseService<ProgressEntity> {
     return this.store({ ...createProgressDto, course });
   }
 
-  async findById(id: number): Promise<ProgressEntity> {
+  async findById(id: number, options?: FindOptions): Promise<ProgressEntity> {
+    const { relations = [] } = options || {};
+
     const progress = await this.findOne({
       where: { id },
-      relations: ['course'],
+      relations,
     });
     if (!progress) {
       throw new BadRequestException('Progress not found');
@@ -51,12 +58,20 @@ export class ProgressService extends BaseService<ProgressEntity> {
   }
 
   async findByIdAndVerifyUser(
-    userId: number,
     id: number,
+    userId: number,
+    options?: FindOptions,
   ): Promise<ProgressEntity> {
-    const progress = await this.findById(id);
+    const { relations = [] } = options || {};
 
-    if (progress.userId !== userId) {
+    const [progress, hasAdminRole] = await Promise.all([
+      this.findById(id, {
+        relations,
+      }),
+      this.userService.checkAdminRole(userId),
+    ]);
+
+    if (progress.userId !== userId && !hasAdminRole) {
       throw new ForbiddenException(
         'You are not allowed to access this progress',
       );
@@ -65,34 +80,43 @@ export class ProgressService extends BaseService<ProgressEntity> {
     return progress;
   }
 
-  async findStudentByCourseId(
-    courseId: number,
-    userId: number,
-  ): Promise<[number, number, number, ProgressEntity[]]> {
-    const course = await this.courseService.findByIdAndVerifyAuthor(
-      courseId,
-      userId,
-    );
-
-    return this.query(
-      { courseId },
-      {
-        relations: ['course', 'user'],
-      },
-    );
-  }
-
   async deleteById(id: number, userId: number): Promise<DeleteResult> {
     const progress = await this.findById(id);
     const { courseId } = progress;
-    const course = await this.courseService.findById(courseId);
+    const [isAuthor, hasAdminRole] = await Promise.all([
+      this.courseService.checkAuthor(courseId, userId),
+      this.userService.checkAdminRole(userId),
+    ]);
 
-    if (progress.userId !== userId || course.authorId !== userId) {
+    if (progress.userId !== userId && !isAuthor && !hasAdminRole) {
       throw new ForbiddenException(
         'You are not allowed to delete this progress',
       );
     }
 
+    await this.progressLessonsRepository.delete({
+      progressId: id,
+    });
+
     return this.delete(id);
+  }
+
+  async findByCourseId(courseId: number, userId: number) {
+    const filter: any = { courseId };
+    const [isAuthor, hasAdminRole] = await Promise.all([
+      this.courseService.checkAuthor(courseId, userId),
+      this.userService.checkAdminRole(userId),
+    ]);
+
+    if (isAuthor && !hasAdminRole) {
+      filter.userId = userId;
+    }
+
+    return this.query(
+      { ...filter },
+      {
+        relations: ['course', 'user', 'progressLessons'],
+      },
+    );
   }
 }

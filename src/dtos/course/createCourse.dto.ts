@@ -19,6 +19,7 @@ export class CreateCourseDto {
   @Min(0)
   price: number;
 
+  @IsNotEmpty()
   language: string;
 
   @IsEmpty()

@@ -6,7 +6,4 @@ export class CreateProgressDto {
 
   @IsNotEmpty()
   courseId: number;
-
-  @IsEmpty()
-  progressStatus: boolean;
 }

@@ -1,17 +1,19 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  Unique,
+} from 'typeorm';
 import { CourseEntity } from './course.entity';
+import { ProgressLessonsEntity } from './progressLessons.entity';
 import { UserEntity } from './user.entity';
 
 @Entity({ name: 'progress' })
 @Unique(['userId', 'courseId'])
 export class ProgressEntity extends CustomBaseEntity {
-  @Column({
-    name: 'progress_status',
-    default: true,
-  })
-  progressStatus: boolean;
-
   @Column({
     name: 'user_id',
     nullable: false,
@@ -35,4 +37,10 @@ export class ProgressEntity extends CustomBaseEntity {
     name: 'course_id',
   })
   course: CourseEntity;
+
+  @OneToMany(
+    () => ProgressLessonsEntity,
+    (progressLessons: ProgressLessonsEntity) => progressLessons.progress,
+  )
+  progressLessons: ProgressLessonsEntity[];
 }

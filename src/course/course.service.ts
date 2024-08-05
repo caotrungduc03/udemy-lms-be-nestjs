@@ -104,4 +104,10 @@ export class CourseService extends BaseService<CourseEntity> {
 
     return course;
   }
+
+  async checkAuthor(id: number, authorId: number) {
+    const course = await this.findById(id);
+
+    return course.authorId === authorId;
+  }
 }

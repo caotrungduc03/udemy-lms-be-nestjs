@@ -85,7 +85,9 @@ export class AuthGuard implements CanActivate {
     payload: any,
     requiredRoles: RoleEnum[],
   ): Promise<boolean> {
-    const user = await this.userService.findById(payload.userId);
+    const user = await this.userService.findById(payload.userId, {
+      relations: ['role'],
+    });
     if (!user.status) {
       throw new UnauthorizedException('Your account is not active');
     }

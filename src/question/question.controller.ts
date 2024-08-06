@@ -11,35 +11,32 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { ExerciseDto, UpdateExerciseDto } from 'src/dtos';
+import { CreateQuestionDto, QuestionDto, UpdateQuestionDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
 import { IPagination } from 'src/utils/i.pagination';
 import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
-import { CreateExerciseDto } from './../dtos/exercise/createExercise.dto';
-import { ExerciseService } from './exercise.service';
+import { QuestionService } from './question.service';
 
-@Controller('exercises')
-export class ExerciseController {
-  constructor(private readonly exerciseService: ExerciseService) {}
+@Controller('questions')
+export class QuestionController {
+  constructor(private readonly questionService: QuestionService) {}
 
   @Get('/')
   @Public()
   async find(@Query() queryObj: Object) {
-    const [page, limit, total, exercises] = await this.exerciseService.query(
+    const [page, limit, total, questions] = await this.questionService.query(
       queryObj,
       {
-        relations: ['course'],
+        relations: ['exercise'],
       },
     );
-
-    const results: IPagination<ExerciseDto> = {
+    const results: IPagination<QuestionDto> = {
       page,
       limit,
       total,
-      items: ExerciseDto.plainToInstance(exercises),
+      items: QuestionDto.plainToInstance(questions),
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
@@ -47,15 +44,15 @@ export class ExerciseController {
 
   @Get('/:id')
   @Public()
-  async findById(@Param('id') id: number) {
-    const exercise = await this.exerciseService.findById(id, {
-      relations: ['course'],
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    const question = await this.questionService.findById(id, {
+      relations: ['exercise', 'exercise.course', 'exercise.course.author'],
     });
 
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
-      ExerciseDto.plainToInstance(exercise),
+      QuestionDto.plainToInstance(question),
     );
   }
 
@@ -63,19 +60,18 @@ export class ExerciseController {
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async create(
     @Req() request: Request,
-    @Body() createExerciseDto: CreateExerciseDto,
+    @Body() createQuestionDto: CreateQuestionDto,
   ) {
     const userReq = request['user'];
-
-    const exercise = await this.exerciseService.create(
-      createExerciseDto,
+    const question = await this.questionService.create(
+      createQuestionDto,
       userReq.userId,
     );
 
     return new CustomResponse(
-      HttpStatus.CREATED,
+      HttpStatus.OK,
       'Success',
-      ExerciseDto.plainToInstance(exercise),
+      QuestionDto.plainToInstance(question),
     );
   }
 
@@ -84,30 +80,31 @@ export class ExerciseController {
   async updateById(
     @Req() request: Request,
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateExerciseDto: UpdateExerciseDto,
+    @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
     const userReq = request['user'];
-
-    const exercise = await this.exerciseService.updateById(
+    const question = await this.questionService.updateById(
       id,
       userReq.userId,
-      updateExerciseDto,
+      updateQuestionDto,
     );
 
     return new CustomResponse(
       HttpStatus.OK,
-      'Updated a exercise',
-      ExerciseDto.plainToInstance(exercise),
+      'Success',
+      QuestionDto.plainToInstance(question),
     );
   }
 
   @Delete('/:id')
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
-  async deleteById(@Req() request: Request, @Param('id') id: number) {
+  async deleteById(
+    @Req() request: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
     const userReq = request['user'];
+    await this.questionService.deleteById(id, userReq.userId);
 
-    await this.exerciseService.deleteById(id, userReq.userId);
-
-    return new CustomResponse(HttpStatus.OK, 'Deleted a exercise');
+    return new CustomResponse(HttpStatus.OK, 'Deleted a question');
   }
 }

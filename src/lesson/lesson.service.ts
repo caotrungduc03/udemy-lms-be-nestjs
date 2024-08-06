@@ -8,6 +8,7 @@ import { BaseService } from 'src/common/base.service';
 import { CourseService } from 'src/course/course.service';
 import { CreateLessonDto, UpdateLessonDto } from 'src/dtos';
 import { LessonEntity } from 'src/entities';
+import { UserService } from 'src/user/user.service';
 import { FindOptions } from 'src/utils/i.options';
 import { pickFields } from 'src/utils/pickFields';
 
@@ -16,13 +17,17 @@ export class LessonService extends BaseService<LessonEntity> {
   constructor(
     @InjectRepository(LessonEntity) private readonly lessonRepository,
     private readonly courseService: CourseService,
+    private readonly userService: UserService,
   ) {
     super(lessonRepository);
   }
 
-  async create(createLessonDto: CreateLessonDto) {
+  async create(userId: number, createLessonDto: CreateLessonDto) {
     const { courseId } = createLessonDto;
-    const course = await this.courseService.findById(courseId);
+    const course = await this.courseService.findByIdAndAuthorize(
+      courseId,
+      userId,
+    );
 
     return this.store({
       ...createLessonDto,
@@ -52,12 +57,7 @@ export class LessonService extends BaseService<LessonEntity> {
       'content',
     ]);
 
-    const lesson = await this.findById(id, {
-      relations: ['course'],
-    });
-    if (lesson.course.authorId !== userId) {
-      throw new ForbiddenException('You are not allowed to update this lesson');
-    }
+    const lesson = this.findByIdAndAuthorize(id, userId);
 
     return this.store({
       ...lesson,
@@ -66,13 +66,23 @@ export class LessonService extends BaseService<LessonEntity> {
   }
 
   async deleteById(id: number, userId: number) {
-    const lesson = await this.findById(id, {
-      relations: ['course'],
-    });
-    if (lesson.course.authorId !== userId) {
-      throw new ForbiddenException('You are not allowed to delete this lesson');
-    }
+    const lesson = await this.findByIdAndAuthorize(id, userId);
 
     return this.delete(id);
+  }
+
+  async findByIdAndAuthorize(id: number, userId: number) {
+    const [lesson, hasAdminRole] = await Promise.all([
+      this.findById(id, {
+        relations: ['course'],
+      }),
+      this.userService.checkAdminRole(userId),
+    ]);
+    const isAuthor = lesson.course.authorId === userId;
+    if (!isAuthor && !hasAdminRole) {
+      throw new ForbiddenException('You are not allowed to access this lesson');
+    }
+
+    return lesson;
   }
 }

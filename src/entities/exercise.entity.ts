@@ -1,6 +1,7 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { CourseEntity } from './course.entity';
+import { QuestionEntity } from './question.entity';
 
 @Entity({ name: 'exercises' })
 export class ExerciseEntity extends CustomBaseEntity {
@@ -53,4 +54,10 @@ export class ExerciseEntity extends CustomBaseEntity {
     name: 'course_id',
   })
   course: CourseEntity;
+
+  @OneToMany(
+    () => QuestionEntity,
+    (question: QuestionEntity) => question.exercise,
+  )
+  questions: QuestionEntity;
 }

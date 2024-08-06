@@ -43,18 +43,6 @@ export class LessonController {
     return new CustomResponse(HttpStatus.OK, 'Success', results);
   }
 
-  @Post('/')
-  @Public()
-  async create(@Body() createLessonDto: CreateLessonDto) {
-    const lesson = await this.lessonService.create(createLessonDto);
-
-    return new CustomResponse(
-      HttpStatus.CREATED,
-      'Created a new lesson',
-      LessonDto.plainToInstance(lesson),
-    );
-  }
-
   @Get('/:id')
   @Public()
   async findById(@Param('id', ParseIntPipe) id: number) {
@@ -65,6 +53,25 @@ export class LessonController {
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
+      LessonDto.plainToInstance(lesson),
+    );
+  }
+
+  @Post('/')
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async create(
+    @Req() request: Request,
+    @Body() createLessonDto: CreateLessonDto,
+  ) {
+    const userReq = request['user'];
+    const lesson = await this.lessonService.create(
+      userReq.userId,
+      createLessonDto,
+    );
+
+    return new CustomResponse(
+      HttpStatus.CREATED,
+      'Created a new lesson',
       LessonDto.plainToInstance(lesson),
     );
   }
@@ -91,7 +98,7 @@ export class LessonController {
   }
 
   @Delete('/:id')
-  @Roles(RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async deleteById(@Req() request: Request, @Param('id') id: number) {
     const userReq = request['user'];
 

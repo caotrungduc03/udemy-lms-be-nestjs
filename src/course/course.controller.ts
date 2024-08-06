@@ -39,7 +39,7 @@ export class CourseController {
       page,
       limit,
       total,
-      items: CourseDto.plainToInstance(courses, ['public']),
+      items: CourseDto.plainToInstance(courses),
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
@@ -62,7 +62,7 @@ export class CourseController {
       page,
       limit,
       total,
-      items: CourseDto.plainToInstance(courses, ['public']),
+      items: CourseDto.plainToInstance(courses),
     };
 
     return new CustomResponse(HttpStatus.OK, 'Success', results);
@@ -71,19 +71,19 @@ export class CourseController {
   @Get('/:id')
   @Public()
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const course: CourseEntity = await this.courseService.findById(id, {
-      relations: ['author', 'category', 'lessons'],
+    const course = await this.courseService.findById(id, {
+      relations: ['author', 'category', 'lessons', 'exercises'],
     });
 
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
-      CourseDto.plainToInstance(course, ['public']),
+      CourseDto.plainToInstance(course),
     );
   }
 
   @Post('/')
-  @Roles(RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async create(
     @Req() request: Request,
     @Body() createCourseDto: CreateCourseDto,
@@ -102,7 +102,7 @@ export class CourseController {
   }
 
   @Put('/:id')
-  @Roles(RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async updateById(
     @Req() request: Request,
     @Param('id', ParseIntPipe) id: number,
@@ -110,7 +110,7 @@ export class CourseController {
   ) {
     const userReq = request['user'];
 
-    const course: CourseEntity = await this.courseService.updateById(id, {
+    const course = await this.courseService.updateById(id, {
       ...updateCourseDto,
       authorId: userReq.userId,
     });
@@ -123,7 +123,7 @@ export class CourseController {
   }
 
   @Delete('/:id')
-  @Roles(RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async delete(@Req() request: Request, @Param('id', ParseIntPipe) id: number) {
     const userReq = request['user'];
 

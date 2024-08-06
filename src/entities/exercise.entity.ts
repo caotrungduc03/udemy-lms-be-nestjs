@@ -2,13 +2,13 @@ import { CustomBaseEntity } from 'src/common/customBase.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { CourseEntity } from './course.entity';
 
-@Entity({ name: 'lessons' })
-export class LessonEntity extends CustomBaseEntity {
+@Entity({ name: 'exercises' })
+export class ExerciseEntity extends CustomBaseEntity {
   @Column({
-    name: 'lesson_name',
+    name: 'exercise_name',
     nullable: false,
   })
-  lessonName: string;
+  exerciseName: string;
 
   @Column({
     type: 'text',
@@ -16,15 +16,31 @@ export class LessonEntity extends CustomBaseEntity {
   description: string;
 
   @Column({
+    name: 'exercise_type',
     nullable: false,
   })
+  exerciseType: string;
+
+  @Column()
   duration: number;
 
   @Column({
-    type: 'text',
+    type: 'timestamptz',
+  })
+  deadline: Date;
+
+  @Column({
+    name: 'min_passing_score',
+    type: 'float',
     nullable: false,
   })
-  content: string;
+  min_passing_score: number;
+
+  @Column({
+    name: 'max_tries',
+    nullable: false,
+  })
+  max_tries: number;
 
   @Column({
     name: 'course_id',
@@ -32,7 +48,7 @@ export class LessonEntity extends CustomBaseEntity {
   })
   courseId: number;
 
-  @ManyToOne(() => CourseEntity, (course: CourseEntity) => course.lessons)
+  @ManyToOne(() => CourseEntity, (course: CourseEntity) => course.exercises)
   @JoinColumn({
     name: 'course_id',
   })

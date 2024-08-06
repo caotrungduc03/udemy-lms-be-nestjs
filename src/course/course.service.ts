@@ -56,6 +56,7 @@ export class CourseService extends BaseService<CourseEntity> {
     id: number,
     updateCourseDto: UpdateCourseDto,
   ): Promise<CourseEntity> {
+    const { authorId, categoryId } = updateCourseDto;
     const updateData = pickFields(updateCourseDto, [
       'courseName',
       'description',
@@ -67,16 +68,10 @@ export class CourseService extends BaseService<CourseEntity> {
       'authorId',
       'categoryId',
     ]);
-    const course = await this.findById(id);
+    const course = await this.findByIdAndAuthorize(id, authorId);
 
-    if (updateData.authorId !== course.authorId) {
-      throw new ForbiddenException('You are not allowed to update this course');
-    }
-
-    if (course.categoryId !== updateData.categoryId) {
-      const category = await this.categoryService.findById(
-        updateData.categoryId,
-      );
+    if (course.categoryId !== categoryId) {
+      const category = await this.categoryService.findById(categoryId);
       course.category = category;
     }
 
@@ -86,19 +81,19 @@ export class CourseService extends BaseService<CourseEntity> {
     });
   }
 
-  async deleteById(id: number, authorId: number): Promise<DeleteResult> {
-    const course = await this.findById(id);
-
-    if (authorId !== course.authorId) {
-      throw new ForbiddenException('You are not allowed to delete this course');
-    }
+  async deleteById(id: number, userId: number): Promise<DeleteResult> {
+    const course = await this.findByIdAndAuthorize(id, userId);
 
     return this.delete(id);
   }
 
-  async findByIdAndVerifyAuthor(id: number, authorId: number) {
-    const course = await this.findById(id);
-    if (course.authorId !== authorId) {
+  async findByIdAndAuthorize(id: number, userId: number) {
+    const [course, hasAdminRole] = await Promise.all([
+      this.findById(id),
+      this.userService.checkAdminRole(userId),
+    ]);
+    const isAuthor = course.authorId === userId;
+    if (!isAuthor && !hasAdminRole) {
       throw new ForbiddenException('You are not allowed to access this course');
     }
 

@@ -9,7 +9,7 @@ import { BaseService } from 'src/common/base.service';
 import { CreateCourseDto, UpdateCourseDto } from 'src/dtos';
 import { CourseEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/options';
+import { FindOptions } from 'src/utils/i.options';
 import { pickFields } from 'src/utils/pickFields';
 import { DeleteResult, Repository } from 'typeorm';
 
@@ -103,5 +103,11 @@ export class CourseService extends BaseService<CourseEntity> {
     }
 
     return course;
+  }
+
+  async checkAuthor(id: number, authorId: number) {
+    const course = await this.findById(id);
+
+    return course.authorId === authorId;
   }
 }

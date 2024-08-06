@@ -52,7 +52,9 @@ export class UserController {
   @Get('/profile')
   async profile(@Req() request: Request) {
     const userReq = request['user'];
-    const user: UserEntity = await this.userService.findById(userReq.userId);
+    const user: UserEntity = await this.userService.findById(userReq.userId, {
+      relations: ['role'],
+    });
 
     return new CustomResponse(
       HttpStatus.OK,
@@ -90,7 +92,9 @@ export class UserController {
   @Get('/:id')
   @Roles(RoleEnum.ADMIN)
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const user: UserEntity = await this.userService.findById(id);
+    const user: UserEntity = await this.userService.findById(id, {
+      relations: ['role'],
+    });
 
     return new CustomResponse(
       HttpStatus.OK,

@@ -10,6 +10,8 @@ export * from './course/updateCourse.dto';
 export * from './lesson/createLesson.dto';
 export * from './lesson/lesson.dto';
 export * from './lesson/updateLesson.dto';
+export * from './progress-lessons/createProgressLessons.dto';
+export * from './progress-lessons/progressLessons.dto';
 export * from './progress/createProgress.dto';
 export * from './progress/progress.dto';
 export * from './role/createRole.dto';

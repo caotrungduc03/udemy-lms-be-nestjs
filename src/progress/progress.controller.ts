@@ -13,6 +13,8 @@ import { Request } from 'express';
 import { CreateProgressDto, ProgressDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
 import { IPagination } from 'src/utils/i.pagination';
+import { RoleEnum } from 'src/utils/role.enum';
+import { Roles } from 'src/utils/roles.decorator';
 import { ProgressService } from './progress.service';
 
 @Controller('progress')
@@ -29,7 +31,7 @@ export class ProgressController {
         userId: userReq.userId,
       },
       {
-        relations: ['course'],
+        relations: ['course', 'progressLessons'],
       },
     );
     const results: IPagination<ProgressDto> = {
@@ -47,22 +49,20 @@ export class ProgressController {
   }
 
   @Get('/courses/:courseId')
-  async findStudentByCourseId(
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async findByCourseId(
     @Req() request: Request,
     @Param('courseId') courseId: number,
   ) {
     const userReq = request['user'];
-    const [page, limit, total, progress] =
-      await this.progressService.findStudentByCourseId(
-        courseId,
-        userReq.userId,
-      );
 
+    const [page, limit, total, progress] =
+      await this.progressService.findByCourseId(courseId, userReq.userId);
     const results: IPagination<ProgressDto> = {
       page,
       limit,
       total,
-      items: ProgressDto.plainToInstance(progress, ['progress']),
+      items: ProgressDto.plainToInstance(progress),
     };
 
     return new CustomResponse(
@@ -73,19 +73,21 @@ export class ProgressController {
   }
 
   @Get('/:id')
-  async findByIdAndVerifyUser(
-    @Req() request: Request,
-    @Param('id') id: number,
-  ) {
+  async findById(@Req() request: Request, @Param('id') id: number) {
     const userReq = request['user'];
+
     const progress = await this.progressService.findByIdAndVerifyUser(
-      userReq.userId,
       id,
+      userReq.userId,
+      {
+        relations: ['progressLessons'],
+      },
     );
+
     return new CustomResponse(
       HttpStatus.OK,
       'Progress retrieved successfully',
-      ProgressDto.plainToInstance(progress, ['student']),
+      ProgressDto.plainToInstance(progress),
     );
   }
 
@@ -100,6 +102,7 @@ export class ProgressController {
       ...createProgressDto,
       userId: userReq.userId,
     });
+
     return new CustomResponse(
       HttpStatus.CREATED,
       'Progress created successfully',
@@ -110,6 +113,7 @@ export class ProgressController {
   @Delete('/:id')
   async delete(@Req() request: Request, @Param('id') id: number) {
     const userReq = request['user'];
+
     await this.progressService.deleteById(id, userReq.userId);
 
     return new CustomResponse(HttpStatus.OK, 'Deleted a progress');

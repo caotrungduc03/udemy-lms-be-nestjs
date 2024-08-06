@@ -44,6 +44,11 @@ export class CourseEntity extends CustomBaseEntity {
   })
   price: number;
 
+  @Column({
+    name: 'language',
+    nullable: false,
+    default: 'English',
+  })
   language: string;
 
   @Column({

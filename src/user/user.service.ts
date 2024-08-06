@@ -14,6 +14,7 @@ import {
 import { UserEntity } from 'src/entities';
 import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
+import { FindOptions } from 'src/utils/i.options';
 import { pickFields } from 'src/utils/pickFields';
 import { Repository } from 'typeorm';
 
@@ -27,10 +28,12 @@ export class UserService extends BaseService<UserEntity> {
     super(userRepository);
   }
 
-  async findById(id: number): Promise<UserEntity> {
+  async findById(id: number, options?: FindOptions): Promise<UserEntity> {
+    const { relations = [] } = options || {};
+
     const user = await this.findOne({
       where: { id },
-      relations: ['role'],
+      relations,
     });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -139,5 +142,11 @@ export class UserService extends BaseService<UserEntity> {
       ...user,
       ...updateProfileDto,
     });
+  }
+
+  async checkAdminRole(id: number): Promise<boolean> {
+    const user = await this.findById(id, { relations: ['role'] });
+
+    return user.role?.roleName === 'ADMIN';
   }
 }

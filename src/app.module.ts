@@ -7,17 +7,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CourseModule } from './course/course.module';
 import { DatabaseSeederModule } from './database-seeder/database-seeder.module';
 import { DatabaseSeederService } from './database-seeder/database-seeder.service';
 import { UserEntity } from './entities';
+import { LessonModule } from './lesson/lesson.module';
+import { ProgressLessonsModule } from './progress-lessons/progress-lessons.module';
+import { ProgressModule } from './progress/progress.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { ProgressModule } from './progress/progress.module';
-import { LessonModule } from './lesson/lesson.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { LessonModule } from './lesson/lesson.module';
     CloudinaryModule,
     ProgressModule,
     LessonModule,
+    ProgressLessonsModule,
   ],
   controllers: [],
   providers: [

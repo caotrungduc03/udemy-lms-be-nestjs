@@ -1,6 +1,8 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
+import { format } from 'date-fns';
 import { BaseDto } from 'src/common/base.dto';
 import { CategoryDto } from '../category/category.dto';
+import { ExerciseDto } from '../exercise/exercise.dto';
 import { LessonDto } from '../lesson/lesson.dto';
 import { UserDto } from '../user/user.dto';
 
@@ -24,6 +26,10 @@ export class CourseDto extends BaseDto {
   language: string;
 
   @Expose()
+  @Transform(({ obj }) => format(obj.updatedAt, 'dd/MM/yyyy'))
+  lastUpdate: string;
+
+  @Expose()
   @Type(() => UserDto)
   author: UserDto;
 
@@ -34,4 +40,8 @@ export class CourseDto extends BaseDto {
   @Expose()
   @Type(() => LessonDto)
   lessons: LessonDto[];
+
+  @Expose()
+  @Type(() => ExerciseDto)
+  exercises: ExerciseDto[];
 }

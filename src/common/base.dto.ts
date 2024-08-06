@@ -5,7 +5,7 @@ export abstract class BaseDto {
   id: number;
 
   @Expose({
-    groups: ['public', 'admin'],
+    groups: ['admin'],
   })
   createdAt: Date;
 

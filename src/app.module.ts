@@ -19,6 +19,7 @@ import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
+import { ExerciseModule } from './exercise/exercise.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
     ProgressModule,
     LessonModule,
     ProgressLessonsModule,
+    ExerciseModule,
   ],
   controllers: [],
   providers: [

@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { CategoryEntity } from './category.entity';
+import { ExerciseEntity } from './exercise.entity';
 import { LessonEntity } from './lesson.entity';
 import { ProgressEntity } from './progress.entity';
 import { UserEntity } from './user.entity';
@@ -47,7 +48,6 @@ export class CourseEntity extends CustomBaseEntity {
   @Column({
     name: 'language',
     nullable: false,
-    default: 'English',
   })
   language: string;
 
@@ -86,4 +86,10 @@ export class CourseEntity extends CustomBaseEntity {
 
   @OneToMany(() => LessonEntity, (lesson: LessonEntity) => lesson.course)
   lessons: LessonEntity[];
+
+  @OneToMany(
+    () => ExerciseEntity,
+    (exercise: ExerciseEntity) => exercise.course,
+  )
+  exercises: ExerciseEntity[];
 }

@@ -26,8 +26,12 @@ export class LessonController {
   @Get('/')
   @Public()
   async find(@Query() queryObj: Object) {
-    const [page, limit, total, lessons] =
-      await this.lessonService.query(queryObj);
+    const [page, limit, total, lessons] = await this.lessonService.query(
+      queryObj,
+      {
+        relations: ['course'],
+      },
+    );
 
     const results: IPagination<LessonDto> = {
       page,
@@ -73,7 +77,6 @@ export class LessonController {
     @Body() updateLessonDto: UpdateLessonDto,
   ) {
     const userReq = request['user'];
-
     const lesson = await this.lessonService.updateById(
       id,
       userReq.userId,

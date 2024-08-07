@@ -9,7 +9,7 @@ import { CreateQuestionDto, UpdateQuestionDto } from 'src/dtos';
 import { QuestionEntity } from 'src/entities';
 import { ExerciseService } from 'src/exercise/exercise.service';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/i.options';
+import { FindOptions } from 'src/utils/options';
 import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
@@ -28,7 +28,10 @@ export class QuestionService extends BaseService<QuestionEntity> {
     userId: number,
   ): Promise<QuestionEntity> {
     const { exerciseId } = createQuestionDto;
-    const exercise = await this.exerciseService.findById(exerciseId);
+    const exercise = await this.exerciseService.findByIdAndAuthor(
+      exerciseId,
+      userId,
+    );
 
     return this.store({
       ...createQuestionDto,
@@ -54,7 +57,7 @@ export class QuestionService extends BaseService<QuestionEntity> {
     userId: number,
     updateQuestionDto: UpdateQuestionDto,
   ): Promise<QuestionEntity> {
-    const question = await this.findByIdAndAuthorize(id, userId);
+    const question = await this.findByIdAndAuthor(id, userId);
 
     return this.store({
       ...question,
@@ -63,15 +66,12 @@ export class QuestionService extends BaseService<QuestionEntity> {
   }
 
   async deleteById(id: number, userId: number): Promise<DeleteResult> {
-    const question = await this.findByIdAndAuthorize(id, userId);
+    const question = await this.findByIdAndAuthor(id, userId);
 
     return this.delete(id);
   }
 
-  async findByIdAndAuthorize(
-    id: number,
-    userId: number,
-  ): Promise<QuestionEntity> {
+  async findByIdAndAuthor(id: number, userId: number): Promise<QuestionEntity> {
     const [question, hasAdminRole] = await Promise.all([
       this.findById(id, {
         relations: ['exercise', 'exercise.course'],

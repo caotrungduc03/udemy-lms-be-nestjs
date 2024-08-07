@@ -11,7 +11,7 @@ import { CourseService } from 'src/course/course.service';
 import { CreateExerciseDto, UpdateExerciseDto } from 'src/dtos';
 import { ExerciseEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/i.options';
+import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
 import { DeleteResult, Repository } from 'typeorm';
 
@@ -31,10 +31,7 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
     userId: number,
   ): Promise<ExerciseEntity> {
     const { courseId, deadline } = createExerciseDto;
-    const course = await this.courseService.findByIdAndAuthorize(
-      courseId,
-      userId,
-    );
+    const course = await this.courseService.findByIdAndAuthor(courseId, userId);
 
     if (isBefore(deadline, new Date())) {
       throw new BadRequestException('Deadline cannot be in the past');
@@ -79,7 +76,7 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
       throw new BadRequestException('Deadline cannot be in the past');
     }
 
-    const exercise = await this.findByIdAndAuthorize(id, userId);
+    const exercise = await this.findByIdAndAuthor(id, userId);
 
     return this.store({
       ...exercise,
@@ -88,15 +85,12 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
   }
 
   async deleteById(id: number, userId: number): Promise<DeleteResult> {
-    const exercise = await this.findByIdAndAuthorize(id, userId);
+    const exercise = await this.findByIdAndAuthor(id, userId);
 
     return this.delete(id);
   }
 
-  async findByIdAndAuthorize(
-    id: number,
-    userId: number,
-  ): Promise<ExerciseEntity> {
+  async findByIdAndAuthor(id: number, userId: number): Promise<ExerciseEntity> {
     const [exercise, hasAdminRole] = await Promise.all([
       this.findById(id, {
         relations: ['course'],

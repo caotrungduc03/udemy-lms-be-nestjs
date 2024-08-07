@@ -14,7 +14,7 @@ import {
 import { Request } from 'express';
 import { ExerciseDto, UpdateExerciseDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
-import { IPagination } from 'src/utils/i.pagination';
+import { Pagination } from 'src/utils/pagination';
 import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
@@ -35,7 +35,7 @@ export class ExerciseController {
       },
     );
 
-    const results: IPagination<ExerciseDto> = {
+    const results: Pagination<ExerciseDto> = {
       page,
       limit,
       total,

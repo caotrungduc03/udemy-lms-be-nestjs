@@ -12,7 +12,7 @@ import {
 import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from 'src/dtos';
 import { CategoryEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
-import { IPagination } from 'src/utils/i.pagination';
+import { Pagination } from 'src/utils/pagination';
 import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
@@ -31,7 +31,7 @@ export class CategoryController {
         relations: ['parent', 'children'],
       },
     );
-    const results: IPagination<CategoryDto> = {
+    const results: Pagination<CategoryDto> = {
       page,
       limit,
       total,

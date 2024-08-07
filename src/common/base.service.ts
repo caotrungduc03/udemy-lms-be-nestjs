@@ -7,7 +7,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { QueryOptions } from '../utils/i.options';
+import { QueryOptions } from '../utils/options';
 import { IBaseService } from './i.base.service';
 
 export abstract class BaseService<T extends BaseEntity>

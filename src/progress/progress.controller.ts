@@ -12,7 +12,7 @@ import {
 import { Request } from 'express';
 import { CreateProgressDto, ProgressDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
-import { IPagination } from 'src/utils/i.pagination';
+import { Pagination } from 'src/utils/pagination';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { ProgressService } from './progress.service';
@@ -34,7 +34,7 @@ export class ProgressController {
         relations: ['course', 'progressLessons'],
       },
     );
-    const results: IPagination<ProgressDto> = {
+    const results: Pagination<ProgressDto> = {
       page,
       limit,
       total,
@@ -58,7 +58,7 @@ export class ProgressController {
 
     const [page, limit, total, progress] =
       await this.progressService.findByCourseId(courseId, userReq.userId);
-    const results: IPagination<ProgressDto> = {
+    const results: Pagination<ProgressDto> = {
       page,
       limit,
       total,

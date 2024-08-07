@@ -9,7 +9,7 @@ import { BaseService } from 'src/common/base.service';
 import { CreateCourseDto, UpdateCourseDto } from 'src/dtos';
 import { CourseEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/i.options';
+import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
 import { DeleteResult, Repository } from 'typeorm';
 
@@ -68,7 +68,7 @@ export class CourseService extends BaseService<CourseEntity> {
       'authorId',
       'categoryId',
     ]);
-    const course = await this.findByIdAndAuthorize(id, authorId);
+    const course = await this.findByIdAndAuthor(id, authorId);
 
     if (course.categoryId !== categoryId) {
       const category = await this.categoryService.findById(categoryId);
@@ -82,19 +82,21 @@ export class CourseService extends BaseService<CourseEntity> {
   }
 
   async deleteById(id: number, userId: number): Promise<DeleteResult> {
-    const course = await this.findByIdAndAuthorize(id, userId);
+    const course = await this.findByIdAndAuthor(id, userId);
 
     return this.delete(id);
   }
 
-  async findByIdAndAuthorize(id: number, userId: number) {
+  async findByIdAndAuthor(id: number, userId: number) {
     const [course, hasAdminRole] = await Promise.all([
       this.findById(id),
       this.userService.checkAdminRole(userId),
     ]);
     const isAuthor = course.authorId === userId;
     if (!isAuthor && !hasAdminRole) {
-      throw new ForbiddenException('You are not allowed to access this course');
+      throw new ForbiddenException(
+        'You are not allowed to perform this action',
+      );
     }
 
     return course;

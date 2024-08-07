@@ -9,7 +9,7 @@ import { CourseService } from 'src/course/course.service';
 import { CreateProgressDto } from 'src/dtos';
 import { ProgressEntity, ProgressLessonsEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/i.options';
+import { FindOptions } from 'src/utils/options';
 import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
@@ -70,10 +70,10 @@ export class ProgressService extends BaseService<ProgressEntity> {
       }),
       this.userService.checkAdminRole(userId),
     ]);
-
-    if (progress.userId !== userId && !hasAdminRole) {
+    const isCurrentUser = progress.userId === userId;
+    if (!isCurrentUser && !hasAdminRole) {
       throw new ForbiddenException(
-        'You are not allowed to access this progress',
+        'You are not allowed to perform this action',
       );
     }
 
@@ -87,8 +87,8 @@ export class ProgressService extends BaseService<ProgressEntity> {
       this.courseService.checkAuthor(courseId, userId),
       this.userService.checkAdminRole(userId),
     ]);
-
-    if (progress.userId !== userId && !isAuthor && !hasAdminRole) {
+    const isCurrentUser = progress.userId === userId;
+    if (!isCurrentUser && !isAuthor && !hasAdminRole) {
       throw new ForbiddenException(
         'You are not allowed to delete this progress',
       );

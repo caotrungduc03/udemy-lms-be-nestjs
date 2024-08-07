@@ -9,7 +9,7 @@ import { CourseService } from 'src/course/course.service';
 import { CreateLessonDto, UpdateLessonDto } from 'src/dtos';
 import { LessonEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/i.options';
+import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
 
 @Injectable()
@@ -24,10 +24,7 @@ export class LessonService extends BaseService<LessonEntity> {
 
   async create(userId: number, createLessonDto: CreateLessonDto) {
     const { courseId } = createLessonDto;
-    const course = await this.courseService.findByIdAndAuthorize(
-      courseId,
-      userId,
-    );
+    const course = await this.courseService.findByIdAndAuthor(courseId, userId);
 
     return this.store({
       ...createLessonDto,
@@ -57,7 +54,7 @@ export class LessonService extends BaseService<LessonEntity> {
       'content',
     ]);
 
-    const lesson = this.findByIdAndAuthorize(id, userId);
+    const lesson = this.findByIdAndAuthor(id, userId);
 
     return this.store({
       ...lesson,
@@ -66,12 +63,12 @@ export class LessonService extends BaseService<LessonEntity> {
   }
 
   async deleteById(id: number, userId: number) {
-    const lesson = await this.findByIdAndAuthorize(id, userId);
+    const lesson = await this.findByIdAndAuthor(id, userId);
 
     return this.delete(id);
   }
 
-  async findByIdAndAuthorize(id: number, userId: number) {
+  async findByIdAndAuthor(id: number, userId: number) {
     const [lesson, hasAdminRole] = await Promise.all([
       this.findById(id, {
         relations: ['course'],
@@ -80,7 +77,9 @@ export class LessonService extends BaseService<LessonEntity> {
     ]);
     const isAuthor = lesson.course.authorId === userId;
     if (!isAuthor && !hasAdminRole) {
-      throw new ForbiddenException('You are not allowed to access this lesson');
+      throw new ForbiddenException(
+        'You are not allowed to perform this action',
+      );
     }
 
     return lesson;

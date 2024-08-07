@@ -13,7 +13,7 @@ import {
 import { CreateRoleDto, RoleDto, UpdateRoleDto } from 'src/dtos';
 import { RoleEntity } from 'src/entities';
 import { CustomResponse } from 'src/utils/customResponse';
-import { IPagination } from 'src/utils/i.pagination';
+import { Pagination } from 'src/utils/pagination';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { RoleService } from './role.service';
@@ -27,7 +27,7 @@ export class RoleController {
   async find(@Query() queryObj: Object) {
     const [page, limit, total, roles] = await this.roleService.query(queryObj);
 
-    const results: IPagination<RoleDto> = {
+    const results: Pagination<RoleDto> = {
       page,
       limit,
       total,

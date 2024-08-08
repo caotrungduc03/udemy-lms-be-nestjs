@@ -36,6 +36,10 @@ export abstract class BaseService<T extends BaseEntity>
     return this.repository.delete(id);
   }
 
+  async remove(entity: T): Promise<T> {
+    return this.repository.remove(entity);
+  }
+
   protected columnExists(
     columnName: string,
     metadata: EntityMetadata,

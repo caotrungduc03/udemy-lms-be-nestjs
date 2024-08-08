@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CreateQuestionDto, UpdateQuestionDto } from 'src/dtos';
@@ -10,7 +6,7 @@ import { QuestionEntity } from 'src/entities';
 import { ExerciseService } from 'src/exercise/exercise.service';
 import { UserService } from 'src/user/user.service';
 import { FindOptions } from 'src/utils/options';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class QuestionService extends BaseService<QuestionEntity> {
@@ -21,22 +17,6 @@ export class QuestionService extends BaseService<QuestionEntity> {
     private readonly userService: UserService,
   ) {
     super(questionRepository);
-  }
-
-  async create(
-    createQuestionDto: CreateQuestionDto,
-    userId: number,
-  ): Promise<QuestionEntity> {
-    const { exerciseId } = createQuestionDto;
-    const exercise = await this.exerciseService.findByIdAndAuthor(
-      exerciseId,
-      userId,
-    );
-
-    return this.store({
-      ...createQuestionDto,
-      exercise,
-    });
   }
 
   async findById(id: number, options?: FindOptions): Promise<QuestionEntity> {
@@ -52,12 +32,42 @@ export class QuestionService extends BaseService<QuestionEntity> {
     return question;
   }
 
+  async findByIdAndVerifyAuthor(
+    id: number,
+    userId: number,
+    options?: FindOptions,
+  ) {
+    const question = await this.findById(id, options);
+    const exercise = await this.exerciseService.findByIdAndVerifyAuthor(
+      question.exerciseId,
+      userId,
+    );
+
+    return question;
+  }
+
+  async create(
+    createQuestionDto: CreateQuestionDto,
+    userId: number,
+  ): Promise<QuestionEntity> {
+    const { exerciseId } = createQuestionDto;
+    const exercise = await this.exerciseService.findByIdAndVerifyAuthor(
+      exerciseId,
+      userId,
+    );
+
+    return this.store({
+      ...createQuestionDto,
+      exercise,
+    });
+  }
+
   async updateById(
     id: number,
     userId: number,
     updateQuestionDto: UpdateQuestionDto,
   ): Promise<QuestionEntity> {
-    const question = await this.findByIdAndAuthor(id, userId);
+    const question = await this.findByIdAndVerifyAuthor(id, userId);
 
     return this.store({
       ...question,
@@ -65,26 +75,9 @@ export class QuestionService extends BaseService<QuestionEntity> {
     });
   }
 
-  async deleteById(id: number, userId: number): Promise<DeleteResult> {
-    const question = await this.findByIdAndAuthor(id, userId);
+  async deleteById(id: number, userId: number): Promise<QuestionEntity> {
+    const question = await this.findByIdAndVerifyAuthor(id, userId);
 
-    return this.delete(id);
-  }
-
-  async findByIdAndAuthor(id: number, userId: number): Promise<QuestionEntity> {
-    const [question, hasAdminRole] = await Promise.all([
-      this.findById(id, {
-        relations: ['exercise', 'exercise.course'],
-      }),
-      this.userService.checkAdminRole(userId),
-    ]);
-    const isAuthor = question.exercise.course.authorId === userId;
-    if (!isAuthor && !hasAdminRole) {
-      throw new ForbiddenException(
-        'You are not allowed to perform this action',
-      );
-    }
-
-    return question;
+    return this.remove(question);
   }
 }

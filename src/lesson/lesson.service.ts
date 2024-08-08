@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CourseService } from 'src/course/course.service';
@@ -22,16 +18,6 @@ export class LessonService extends BaseService<LessonEntity> {
     super(lessonRepository);
   }
 
-  async create(userId: number, createLessonDto: CreateLessonDto) {
-    const { courseId } = createLessonDto;
-    const course = await this.courseService.findByIdAndAuthor(courseId, userId);
-
-    return this.store({
-      ...createLessonDto,
-      course,
-    });
-  }
-
   async findById(id: number, options?: FindOptions) {
     const { relations = [] } = options || {};
 
@@ -46,6 +32,33 @@ export class LessonService extends BaseService<LessonEntity> {
     return lesson;
   }
 
+  async findByIdAndVerifyAuthor(
+    id: number,
+    userId: number,
+    options?: FindOptions,
+  ) {
+    const lesson = await this.findById(id, options);
+    const course = await this.courseService.findByIdAndVerifyAuthor(
+      lesson.courseId,
+      userId,
+    );
+
+    return lesson;
+  }
+
+  async create(userId: number, createLessonDto: CreateLessonDto) {
+    const { courseId } = createLessonDto;
+    const course = await this.courseService.findByIdAndVerifyAuthor(
+      courseId,
+      userId,
+    );
+
+    return this.store({
+      ...createLessonDto,
+      course,
+    });
+  }
+
   async updateById(id: number, userId: number, updateLesson: UpdateLessonDto) {
     const updateData = pickFields(updateLesson, [
       'lessonName',
@@ -54,7 +67,7 @@ export class LessonService extends BaseService<LessonEntity> {
       'content',
     ]);
 
-    const lesson = this.findByIdAndAuthor(id, userId);
+    const lesson = await this.findByIdAndVerifyAuthor(id, userId);
 
     return this.store({
       ...lesson,
@@ -63,25 +76,8 @@ export class LessonService extends BaseService<LessonEntity> {
   }
 
   async deleteById(id: number, userId: number) {
-    const lesson = await this.findByIdAndAuthor(id, userId);
+    const lesson = await this.findByIdAndVerifyAuthor(id, userId);
 
     return this.delete(id);
-  }
-
-  async findByIdAndAuthor(id: number, userId: number) {
-    const [lesson, hasAdminRole] = await Promise.all([
-      this.findById(id, {
-        relations: ['course'],
-      }),
-      this.userService.checkAdminRole(userId),
-    ]);
-    const isAuthor = lesson.course.authorId === userId;
-    if (!isAuthor && !hasAdminRole) {
-      throw new ForbiddenException(
-        'You are not allowed to perform this action',
-      );
-    }
-
-    return lesson;
   }
 }

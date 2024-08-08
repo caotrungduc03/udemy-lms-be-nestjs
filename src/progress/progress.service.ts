@@ -7,18 +7,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CourseService } from 'src/course/course.service';
 import { CreateProgressDto } from 'src/dtos';
-import { ProgressEntity, ProgressLessonsEntity } from 'src/entities';
+import { ProgressEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { FindOptions } from 'src/utils/options';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProgressService extends BaseService<ProgressEntity> {
   constructor(
     @InjectRepository(ProgressEntity)
     private readonly progressRepository: Repository<ProgressEntity>,
-    @InjectRepository(ProgressLessonsEntity)
-    private readonly progressLessonsRepository: Repository<ProgressLessonsEntity>,
     private readonly courseService: CourseService,
     private readonly userService: UserService,
   ) {
@@ -57,6 +55,25 @@ export class ProgressService extends BaseService<ProgressEntity> {
     return progress;
   }
 
+  async findByCourseId(courseId: number, userId: number) {
+    const filter: any = { courseId };
+    const [isAuthor, hasAdminRole] = await Promise.all([
+      this.courseService.checkAuthor(courseId, userId),
+      this.userService.checkAdminRole(userId),
+    ]);
+
+    if (isAuthor && !hasAdminRole) {
+      filter.userId = userId;
+    }
+
+    return this.query(
+      { ...filter },
+      {
+        relations: ['course', 'user', 'progressLessons'],
+      },
+    );
+  }
+
   async findByIdAndVerifyUser(
     id: number,
     userId: number,
@@ -80,43 +97,12 @@ export class ProgressService extends BaseService<ProgressEntity> {
     return progress;
   }
 
-  async deleteById(id: number, userId: number): Promise<DeleteResult> {
-    const progress = await this.findById(id);
-    const { courseId } = progress;
-    const [isAuthor, hasAdminRole] = await Promise.all([
-      this.courseService.checkAuthor(courseId, userId),
-      this.userService.checkAdminRole(userId),
-    ]);
-    const isCurrentUser = progress.userId === userId;
-    if (!isCurrentUser && !isAuthor && !hasAdminRole) {
-      throw new ForbiddenException(
-        'You are not allowed to delete this progress',
-      );
-    }
+  async updateStatusById(id: number, userId: number): Promise<ProgressEntity> {
+    const progress = await this.findByIdAndVerifyUser(id, userId);
 
-    await this.progressLessonsRepository.delete({
-      progressId: id,
+    return this.store({
+      ...progress,
+      status: !progress.status,
     });
-
-    return this.delete(id);
-  }
-
-  async findByCourseId(courseId: number, userId: number) {
-    const filter: any = { courseId };
-    const [isAuthor, hasAdminRole] = await Promise.all([
-      this.courseService.checkAuthor(courseId, userId),
-      this.userService.checkAdminRole(userId),
-    ]);
-
-    if (isAuthor && !hasAdminRole) {
-      filter.userId = userId;
-    }
-
-    return this.query(
-      { ...filter },
-      {
-        relations: ['course', 'user', 'progressLessons'],
-      },
-    );
   }
 }

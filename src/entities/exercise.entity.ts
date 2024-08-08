@@ -1,5 +1,12 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  BeforeRemove,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { CourseEntity } from './course.entity';
 import { QuestionEntity } from './question.entity';
 
@@ -59,5 +66,12 @@ export class ExerciseEntity extends CustomBaseEntity {
     () => QuestionEntity,
     (question: QuestionEntity) => question.exercise,
   )
-  questions: QuestionEntity;
+  questions: QuestionEntity[];
+
+  @BeforeRemove()
+  async beforeRemove(): Promise<void> {
+    if (this.questions) {
+      await Promise.all(this.questions.map((question) => question.remove()));
+    }
+  }
 }

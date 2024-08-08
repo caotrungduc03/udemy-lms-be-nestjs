@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,7 +12,7 @@ import { ExerciseEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ExerciseService extends BaseService<ExerciseEntity> {
@@ -31,7 +30,10 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
     userId: number,
   ): Promise<ExerciseEntity> {
     const { courseId, deadline } = createExerciseDto;
-    const course = await this.courseService.findByIdAndAuthor(courseId, userId);
+    const course = await this.courseService.findByIdAndVerifyAuthor(
+      courseId,
+      userId,
+    );
 
     if (isBefore(deadline, new Date())) {
       throw new BadRequestException('Deadline cannot be in the past');
@@ -56,6 +58,20 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
     return exercise;
   }
 
+  async findByIdAndVerifyAuthor(
+    id: number,
+    userId: number,
+    options?: FindOptions,
+  ): Promise<ExerciseEntity> {
+    const exercise = await this.findById(id, options);
+    const course = await this.courseService.findByIdAndVerifyAuthor(
+      exercise.courseId,
+      userId,
+    );
+
+    return exercise;
+  }
+
   async updateById(
     id: number,
     userId: number,
@@ -76,7 +92,7 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
       throw new BadRequestException('Deadline cannot be in the past');
     }
 
-    const exercise = await this.findByIdAndAuthor(id, userId);
+    const exercise = await this.findByIdAndVerifyAuthor(id, userId);
 
     return this.store({
       ...exercise,
@@ -84,27 +100,15 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
     });
   }
 
-  async deleteById(id: number, userId: number): Promise<DeleteResult> {
-    const exercise = await this.findByIdAndAuthor(id, userId);
+  async deleteById(id: number, userId: number): Promise<ExerciseEntity> {
+    const exercise: ExerciseEntity = await this.findByIdAndVerifyAuthor(
+      id,
+      userId,
+      {
+        relations: ['questions'],
+      },
+    );
 
-    return this.delete(id);
-  }
-
-  async findByIdAndAuthor(id: number, userId: number): Promise<ExerciseEntity> {
-    const [exercise, hasAdminRole] = await Promise.all([
-      this.findById(id, {
-        relations: ['course'],
-      }),
-      this.userService.checkAdminRole(userId),
-    ]);
-    const isAuthor = exercise.course.authorId === userId;
-
-    if (!isAuthor && !hasAdminRole) {
-      throw new ForbiddenException(
-        'You are not allowed to perform this action',
-      );
-    }
-
-    return exercise;
+    return this.remove(exercise);
   }
 }

@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -80,14 +80,14 @@ export class ProgressController {
       id,
       userReq.userId,
       {
-        relations: ['progressLessons'],
+        relations: ['course', 'progressLessons'],
       },
     );
 
     return new CustomResponse(
       HttpStatus.OK,
       'Progress retrieved successfully',
-      ProgressDto.plainToInstance(progress),
+      ProgressDto.plainToInstance(progress, ['student']),
     );
   }
 
@@ -110,12 +110,19 @@ export class ProgressController {
     );
   }
 
-  @Delete('/:id')
-  async delete(@Req() request: Request, @Param('id') id: number) {
+  @Patch('/status/:id')
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async updateById(@Req() request: Request, @Param('id') id: number) {
     const userReq = request['user'];
+    const progress = await this.progressService.updateStatusById(
+      id,
+      userReq.userId,
+    );
 
-    await this.progressService.deleteById(id, userReq.userId);
-
-    return new CustomResponse(HttpStatus.OK, 'Deleted a progress');
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Progress updated successfully',
+      ProgressDto.plainToInstance(progress),
+    );
   }
 }

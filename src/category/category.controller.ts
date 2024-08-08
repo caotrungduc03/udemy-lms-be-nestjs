@@ -28,7 +28,7 @@ export class CategoryController {
     const [page, limit, total, categories] = await this.categoryService.query(
       queryObj,
       {
-        relations: ['parent', 'children'],
+        relations: ['parent'],
       },
     );
     const results: Pagination<CategoryDto> = {
@@ -41,6 +41,20 @@ export class CategoryController {
     return new CustomResponse(HttpStatus.OK, 'Success', results);
   }
 
+  @Get('/:id')
+  @Public()
+  async findById(@Param('id') id: number) {
+    const category = await this.categoryService.findById(id, {
+      relations: ['parent', 'children'],
+    });
+
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Success',
+      CategoryDto.plainToInstance(category),
+    );
+  }
+
   @Post('/')
   @Roles(RoleEnum.ADMIN)
   async create(@Body() createCategoryDto: CreateCategoryDto) {
@@ -49,18 +63,6 @@ export class CategoryController {
     return new CustomResponse(
       HttpStatus.CREATED,
       'Created a new category',
-      CategoryDto.plainToInstance(category),
-    );
-  }
-
-  @Get('/:id')
-  @Public()
-  async findById(@Param('id') id: number) {
-    const category = await this.categoryService.findById(id);
-
-    return new CustomResponse(
-      HttpStatus.OK,
-      'Success',
       CategoryDto.plainToInstance(category),
     );
   }

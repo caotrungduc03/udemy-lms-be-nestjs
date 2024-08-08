@@ -15,6 +15,12 @@ import { UserEntity } from './user.entity';
 @Unique(['userId', 'courseId'])
 export class ProgressEntity extends CustomBaseEntity {
   @Column({
+    type: 'boolean',
+    default: true,
+  })
+  status: number;
+
+  @Column({
     name: 'user_id',
     nullable: false,
   })

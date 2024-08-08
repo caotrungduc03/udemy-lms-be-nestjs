@@ -8,12 +8,10 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  Query,
   Req,
 } from '@nestjs/common';
 import { CreateQuestionDto, QuestionDto, UpdateQuestionDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
-import { Pagination } from 'src/utils/pagination';
 import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
@@ -23,31 +21,10 @@ import { QuestionService } from './question.service';
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
-  @Get('/')
-  @Public()
-  async find(@Query() queryObj: Object) {
-    const [page, limit, total, questions] = await this.questionService.query(
-      queryObj,
-      {
-        relations: ['exercise'],
-      },
-    );
-    const results: Pagination<QuestionDto> = {
-      page,
-      limit,
-      total,
-      items: QuestionDto.plainToInstance(questions),
-    };
-
-    return new CustomResponse(HttpStatus.OK, 'Success', results);
-  }
-
   @Get('/:id')
   @Public()
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const question = await this.questionService.findById(id, {
-      relations: ['exercise', 'exercise.course', 'exercise.course.author'],
-    });
+    const question = await this.questionService.findById(id);
 
     return new CustomResponse(
       HttpStatus.OK,

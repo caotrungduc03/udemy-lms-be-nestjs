@@ -1,6 +1,12 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { ExerciseEntity } from './exercise.entity';
+import { ProgressExerciseQuestionEntity } from './progressExerciseQuestion.entity';
+
+export enum QuestionTypeEnum {
+  CHOICE = 'CHOICE',
+  FILL = 'FILL',
+}
 
 @Entity({
   name: 'questions',
@@ -8,18 +14,21 @@ import { ExerciseEntity } from './exercise.entity';
 export class QuestionEntity extends CustomBaseEntity {
   @Column({
     name: 'question_title',
+    nullable: false,
   })
   questionTitle: string;
 
   @Column({
     name: 'question_type',
+    type: 'enum',
+    enum: QuestionTypeEnum,
   })
-  questionType: string;
+  questionType: QuestionTypeEnum;
 
   @Column({
-    name: 'answers',
     type: 'text',
     array: true,
+    nullable: false,
   })
   answers: string[];
 
@@ -27,11 +36,20 @@ export class QuestionEntity extends CustomBaseEntity {
     name: 'correct_answers',
     type: 'text',
     array: true,
+    nullable: false,
   })
   correctAnswers: string[];
 
   @Column({
+    type: 'float',
+    name: 'max_point',
+    nullable: false,
+  })
+  maxPoint: number;
+
+  @Column({
     name: 'exercise_id',
+    nullable: false,
   })
   exerciseId: number;
 
@@ -40,4 +58,10 @@ export class QuestionEntity extends CustomBaseEntity {
     name: 'exercise_id',
   })
   exercise: ExerciseEntity;
+
+  @OneToMany(
+    () => ProgressExerciseQuestionEntity,
+    (processExerciseQuestion) => processExerciseQuestion.question,
+  )
+  progressExercisesQuestions: ProgressExerciseQuestionEntity[];
 }

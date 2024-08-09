@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { CreateLessonDto, LessonDto, UpdateLessonDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
-import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { LessonService } from './lesson.service';
@@ -22,7 +21,6 @@ export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
   @Get('/:id')
-  @Public()
   async findById(@Param('id', ParseIntPipe) id: number) {
     const lesson = await this.lessonService.findById(id);
 
@@ -53,7 +51,7 @@ export class LessonController {
   }
 
   @Put('/:id')
-  @Roles(RoleEnum.PROFESSOR)
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async updateById(
     @Req() request: Request,
     @Param('id') id: number,

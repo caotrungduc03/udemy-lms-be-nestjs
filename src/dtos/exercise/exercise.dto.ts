@@ -22,7 +22,7 @@ export class ExerciseDto extends BaseDto {
   deadline: string;
 
   @Expose()
-  min_passing_score: number;
+  min_passing_percentage: number;
 
   @Expose()
   max_tries: number;

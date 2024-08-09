@@ -31,7 +31,7 @@ export class ProgressController {
         userId: userReq.userId,
       },
       {
-        relations: ['course', 'progressLessons'],
+        relations: ['course', 'progressLessons', 'progressExercises'],
       },
     );
     const results: Pagination<ProgressDto> = {
@@ -80,7 +80,7 @@ export class ProgressController {
       id,
       userReq.userId,
       {
-        relations: ['course', 'progressLessons'],
+        relations: ['course', 'progressLessons', 'progressExercises'],
       },
     );
 

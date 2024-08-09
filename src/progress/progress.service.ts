@@ -81,14 +81,29 @@ export class ProgressService extends BaseService<ProgressEntity> {
   ): Promise<ProgressEntity> {
     const { relations = [] } = options || {};
 
+    const progress = await this.findById(id, { relations });
+    const isCurrentUser = progress.userId === userId;
+    if (!isCurrentUser) {
+      throw new ForbiddenException(
+        'You are not allowed to perform this action',
+      );
+    }
+
+    return progress;
+  }
+
+  async findByIdAndVerifyAuthor(
+    id: number,
+    userId: number,
+  ): Promise<ProgressEntity> {
     const [progress, hasAdminRole] = await Promise.all([
       this.findById(id, {
-        relations,
+        relations: ['course'],
       }),
       this.userService.checkAdminRole(userId),
     ]);
-    const isCurrentUser = progress.userId === userId;
-    if (!isCurrentUser && !hasAdminRole) {
+    const isAuthor = progress.course.authorId === userId;
+    if (!isAuthor && !hasAdminRole) {
       throw new ForbiddenException(
         'You are not allowed to perform this action',
       );
@@ -98,7 +113,7 @@ export class ProgressService extends BaseService<ProgressEntity> {
   }
 
   async updateStatusById(id: number, userId: number): Promise<ProgressEntity> {
-    const progress = await this.findByIdAndVerifyUser(id, userId);
+    const progress = await this.findByIdAndVerifyAuthor(id, userId);
 
     return this.store({
       ...progress,

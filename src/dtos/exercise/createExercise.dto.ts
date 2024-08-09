@@ -16,7 +16,7 @@ export class CreateExerciseDto {
   deadline: string;
 
   @IsNotEmpty()
-  min_passing_score: number;
+  min_passing_percentage: number;
 
   @IsNotEmpty()
   max_tries: number;

@@ -8,6 +8,7 @@ import {
   Unique,
 } from 'typeorm';
 import { CourseEntity } from './course.entity';
+import { ProgressExerciseEntity } from './progressExercise.entity';
 import { ProgressLessonsEntity } from './progressLessons.entity';
 import { UserEntity } from './user.entity';
 
@@ -18,7 +19,7 @@ export class ProgressEntity extends CustomBaseEntity {
     type: 'boolean',
     default: true,
   })
-  status: number;
+  status: boolean;
 
   @Column({
     name: 'user_id',
@@ -49,4 +50,10 @@ export class ProgressEntity extends CustomBaseEntity {
     (progressLessons: ProgressLessonsEntity) => progressLessons.progress,
   )
   progressLessons: ProgressLessonsEntity[];
+
+  @OneToMany(
+    () => ProgressExerciseEntity,
+    (progressExercises: ProgressExerciseEntity) => progressExercises.progress,
+  )
+  progressExercises: ProgressExerciseEntity[];
 }

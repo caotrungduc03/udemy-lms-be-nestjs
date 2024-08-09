@@ -84,7 +84,7 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
       'exerciseType',
       'duration',
       'deadline',
-      'min_passing_score',
+      'min_passing_percentage',
       'max_tries',
     ]);
 

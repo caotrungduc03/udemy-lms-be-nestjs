@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { CourseEntity } from './course.entity';
+import { ProgressExerciseEntity } from './progressExercise.entity';
 import { QuestionEntity } from './question.entity';
 
 @Entity({ name: 'exercises' })
@@ -38,11 +39,11 @@ export class ExerciseEntity extends CustomBaseEntity {
   deadline: Date;
 
   @Column({
-    name: 'min_passing_score',
+    name: 'min_passing_percentage',
     type: 'float',
     nullable: false,
   })
-  min_passing_score: number;
+  min_passing_percentage: number;
 
   @Column({
     name: 'max_tries',
@@ -67,6 +68,12 @@ export class ExerciseEntity extends CustomBaseEntity {
     (question: QuestionEntity) => question.exercise,
   )
   questions: QuestionEntity[];
+
+  @OneToMany(
+    () => ProgressExerciseEntity,
+    (progress: ProgressExerciseEntity) => progress.exercise,
+  )
+  progressExercises: ProgressExerciseEntity[];
 
   @BeforeRemove()
   async beforeRemove(): Promise<void> {

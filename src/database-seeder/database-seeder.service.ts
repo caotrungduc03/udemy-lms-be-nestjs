@@ -20,9 +20,7 @@ export class DatabaseSeederService {
   private async seedRoles() {
     const roles: RoleEntity[] = [];
     for (const roleName of Object.values(RoleEnum)) {
-      const existingRole = await this.roleService.findOne({
-        where: { roleName },
-      });
+      const existingRole = await this.roleService.findByName(roleName);
       if (!existingRole) {
         const role = new RoleEntity();
         role.roleName = roleName;
@@ -44,11 +42,7 @@ export class DatabaseSeederService {
       user.email = process.env.ADMIN_EMAIL;
       user.password = encodePassword(process.env.ADMIN_PASSWORD);
       user.fullName = 'Admin';
-      user.role = await this.roleService.findOne({
-        where: {
-          roleName: RoleEnum.ADMIN,
-        },
-      });
+      user.role = await this.roleService.findByName(RoleEnum.ADMIN);
 
       await this.userService.store(user);
     }

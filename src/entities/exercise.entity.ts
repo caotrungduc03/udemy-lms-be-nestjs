@@ -1,6 +1,15 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  BeforeRemove,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { CourseEntity } from './course.entity';
+import { ProgressExerciseEntity } from './progressExercise.entity';
+import { QuestionEntity } from './question.entity';
 
 @Entity({ name: 'exercises' })
 export class ExerciseEntity extends CustomBaseEntity {
@@ -30,11 +39,11 @@ export class ExerciseEntity extends CustomBaseEntity {
   deadline: Date;
 
   @Column({
-    name: 'min_passing_score',
+    name: 'min_passing_percentage',
     type: 'float',
     nullable: false,
   })
-  min_passing_score: number;
+  min_passing_percentage: number;
 
   @Column({
     name: 'max_tries',
@@ -53,4 +62,23 @@ export class ExerciseEntity extends CustomBaseEntity {
     name: 'course_id',
   })
   course: CourseEntity;
+
+  @OneToMany(
+    () => QuestionEntity,
+    (question: QuestionEntity) => question.exercise,
+  )
+  questions: QuestionEntity[];
+
+  @OneToMany(
+    () => ProgressExerciseEntity,
+    (progress: ProgressExerciseEntity) => progress.exercise,
+  )
+  progressExercises: ProgressExerciseEntity[];
+
+  @BeforeRemove()
+  async beforeRemove(): Promise<void> {
+    if (this.questions) {
+      await Promise.all(this.questions.map((question) => question.remove()));
+    }
+  }
 }

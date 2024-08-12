@@ -1,4 +1,4 @@
-import { QueryOptions } from 'src/utils/i.options';
+import { QueryOptions } from 'src/utils/options';
 import { DeleteResult, FindOneOptions } from 'typeorm';
 
 export interface IBaseService<T> {

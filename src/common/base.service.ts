@@ -7,7 +7,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { QueryOptions } from '../utils/i.options';
+import { QueryOptions } from '../utils/options';
 import { IBaseService } from './i.base.service';
 
 export abstract class BaseService<T extends BaseEntity>
@@ -34,6 +34,10 @@ export abstract class BaseService<T extends BaseEntity>
 
   async delete(id: number): Promise<DeleteResult> {
     return this.repository.delete(id);
+  }
+
+  async remove(entity: T): Promise<T> {
+    return this.repository.remove(entity);
   }
 
   protected columnExists(

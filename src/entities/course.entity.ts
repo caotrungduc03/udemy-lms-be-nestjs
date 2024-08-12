@@ -1,9 +1,9 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
 import {
+  BeforeRemove,
   Column,
   Entity,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
@@ -78,7 +78,7 @@ export class CourseEntity extends CustomBaseEntity {
   })
   category: CategoryEntity;
 
-  @ManyToMany(
+  @ManyToOne(
     () => ProgressEntity,
     (progress: ProgressEntity) => progress.course,
   )
@@ -92,4 +92,15 @@ export class CourseEntity extends CustomBaseEntity {
     (exercise: ExerciseEntity) => exercise.course,
   )
   exercises: ExerciseEntity[];
+
+  @BeforeRemove()
+  async beforeRemove(): Promise<void> {
+    if (this.lessons) {
+      await Promise.all(this.lessons.map((question) => question.remove()));
+    }
+
+    if (this.exercises) {
+      await Promise.all(this.exercises.map((question) => question.remove()));
+    }
+  }
 }

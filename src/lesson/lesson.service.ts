@@ -1,14 +1,11 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CourseService } from 'src/course/course.service';
 import { CreateLessonDto, UpdateLessonDto } from 'src/dtos';
 import { LessonEntity } from 'src/entities';
-import { FindOptions } from 'src/utils/i.options';
+import { UserService } from 'src/user/user.service';
+import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
 
 @Injectable()
@@ -16,18 +13,9 @@ export class LessonService extends BaseService<LessonEntity> {
   constructor(
     @InjectRepository(LessonEntity) private readonly lessonRepository,
     private readonly courseService: CourseService,
+    private readonly userService: UserService,
   ) {
     super(lessonRepository);
-  }
-
-  async create(createLessonDto: CreateLessonDto) {
-    const { courseId } = createLessonDto;
-    const course = await this.courseService.findById(courseId);
-
-    return this.store({
-      ...createLessonDto,
-      course,
-    });
   }
 
   async findById(id: number, options?: FindOptions) {
@@ -44,6 +32,33 @@ export class LessonService extends BaseService<LessonEntity> {
     return lesson;
   }
 
+  async findByIdAndVerifyAuthor(
+    id: number,
+    userId: number,
+    options?: FindOptions,
+  ) {
+    const lesson = await this.findById(id, options);
+    const course = await this.courseService.findByIdAndVerifyAuthor(
+      lesson.courseId,
+      userId,
+    );
+
+    return lesson;
+  }
+
+  async create(userId: number, createLessonDto: CreateLessonDto) {
+    const { courseId } = createLessonDto;
+    const course = await this.courseService.findByIdAndVerifyAuthor(
+      courseId,
+      userId,
+    );
+
+    return this.store({
+      ...createLessonDto,
+      course,
+    });
+  }
+
   async updateById(id: number, userId: number, updateLesson: UpdateLessonDto) {
     const updateData = pickFields(updateLesson, [
       'lessonName',
@@ -52,12 +67,7 @@ export class LessonService extends BaseService<LessonEntity> {
       'content',
     ]);
 
-    const lesson = await this.findById(id, {
-      relations: ['course'],
-    });
-    if (lesson.course.authorId !== userId) {
-      throw new ForbiddenException('You are not allowed to update this lesson');
-    }
+    const lesson = await this.findByIdAndVerifyAuthor(id, userId);
 
     return this.store({
       ...lesson,
@@ -66,12 +76,7 @@ export class LessonService extends BaseService<LessonEntity> {
   }
 
   async deleteById(id: number, userId: number) {
-    const lesson = await this.findById(id, {
-      relations: ['course'],
-    });
-    if (lesson.course.authorId !== userId) {
-      throw new ForbiddenException('You are not allowed to delete this lesson');
-    }
+    const lesson = await this.findByIdAndVerifyAuthor(id, userId);
 
     return this.delete(id);
   }

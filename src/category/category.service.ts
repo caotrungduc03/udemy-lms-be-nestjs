@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CreateCategoryDto, UpdateCategoryDto } from 'src/dtos';
 import { CategoryEntity } from 'src/entities';
+import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
 import { Repository } from 'typeorm';
 
@@ -15,10 +16,11 @@ export class CategoryService extends BaseService<CategoryEntity> {
     super(categoryRepository);
   }
 
-  async findById(id: number): Promise<CategoryEntity> {
-    const category = await this.categoryRepository.findOne({
+  async findById(id: number, options?: FindOptions): Promise<CategoryEntity> {
+    const { relations = [] } = options || {};
+    const category = await this.findOne({
       where: { id },
-      relations: ['parent', 'children'],
+      relations,
     });
 
     if (!category) {
@@ -31,7 +33,10 @@ export class CategoryService extends BaseService<CategoryEntity> {
   async create(createCategoryDto: CreateCategoryDto): Promise<CategoryEntity> {
     const parent = await this.findById(createCategoryDto.parentId);
 
-    return this.categoryRepository.save({ ...createCategoryDto, parent });
+    return this.store({
+      ...createCategoryDto,
+      parent,
+    });
   }
 
   async updateById(
@@ -44,12 +49,12 @@ export class CategoryService extends BaseService<CategoryEntity> {
     ]);
 
     const category = await this.findById(id);
-    if (updateData.parentId) {
+    if (updateData.parentId !== category.parentId) {
       const parent = await this.findById(updateData.parentId);
       category.parent = parent;
     }
 
-    return this.categoryRepository.save({
+    return this.store({
       ...category,
       ...updateData,
     });
@@ -66,8 +71,7 @@ export class CategoryService extends BaseService<CategoryEntity> {
         parentId: null,
       },
     );
-    await this.categoryRepository.delete(id);
 
-    return category;
+    return this.remove(category);
   }
 }

@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -12,7 +12,7 @@ import {
 import { Request } from 'express';
 import { CreateProgressDto, ProgressDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
-import { IPagination } from 'src/utils/i.pagination';
+import { Pagination } from 'src/utils/pagination';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { ProgressService } from './progress.service';
@@ -31,10 +31,10 @@ export class ProgressController {
         userId: userReq.userId,
       },
       {
-        relations: ['course', 'progressLessons'],
+        relations: ['course', 'progressLessons', 'progressExercises'],
       },
     );
-    const results: IPagination<ProgressDto> = {
+    const results: Pagination<ProgressDto> = {
       page,
       limit,
       total,
@@ -58,7 +58,7 @@ export class ProgressController {
 
     const [page, limit, total, progress] =
       await this.progressService.findByCourseId(courseId, userReq.userId);
-    const results: IPagination<ProgressDto> = {
+    const results: Pagination<ProgressDto> = {
       page,
       limit,
       total,
@@ -80,14 +80,14 @@ export class ProgressController {
       id,
       userReq.userId,
       {
-        relations: ['progressLessons'],
+        relations: ['course', 'progressLessons', 'progressExercises'],
       },
     );
 
     return new CustomResponse(
       HttpStatus.OK,
       'Progress retrieved successfully',
-      ProgressDto.plainToInstance(progress),
+      ProgressDto.plainToInstance(progress, ['student']),
     );
   }
 
@@ -110,12 +110,19 @@ export class ProgressController {
     );
   }
 
-  @Delete('/:id')
-  async delete(@Req() request: Request, @Param('id') id: number) {
+  @Patch('/status/:id')
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async updateById(@Req() request: Request, @Param('id') id: number) {
     const userReq = request['user'];
+    const progress = await this.progressService.updateStatusById(
+      id,
+      userReq.userId,
+    );
 
-    await this.progressService.deleteById(id, userReq.userId);
-
-    return new CustomResponse(HttpStatus.OK, 'Deleted a progress');
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Progress updated successfully',
+      ProgressDto.plainToInstance(progress),
+    );
   }
 }

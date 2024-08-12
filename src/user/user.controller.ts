@@ -21,7 +21,7 @@ import { UserDto } from 'src/dtos/user/user.dto';
 import { UserEntity } from 'src/entities';
 import { CustomParseFilePipe } from 'src/utils/customParseFile.pipe';
 import { CustomResponse } from 'src/utils/customResponse';
-import { IPagination } from 'src/utils/i.pagination';
+import { Pagination } from 'src/utils/pagination';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { UserService } from './user.service';
@@ -39,7 +39,7 @@ export class UserController {
     const [page, limit, total, users] = await this.userService.query(queryObj, {
       relations: ['role'],
     });
-    const results: IPagination<UserDto> = {
+    const results: Pagination<UserDto> = {
       page,
       limit,
       total,

@@ -9,9 +9,9 @@ import { BaseService } from 'src/common/base.service';
 import { CreateCourseDto, UpdateCourseDto } from 'src/dtos';
 import { CourseEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
-import { FindOptions } from 'src/utils/i.options';
+import { FindOptions } from 'src/utils/options';
 import { pickFields } from 'src/utils/pickFields';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CourseService extends BaseService<CourseEntity> {
@@ -33,6 +33,25 @@ export class CourseService extends BaseService<CourseEntity> {
     });
     if (!course) {
       throw new NotFoundException('Course not found');
+    }
+
+    return course;
+  }
+
+  async findByIdAndVerifyAuthor(
+    id: number,
+    userId: number,
+    options?: FindOptions,
+  ) {
+    const [course, hasAdminRole] = await Promise.all([
+      this.findById(id, options),
+      this.userService.checkAdminRole(userId),
+    ]);
+    const isAuthor = course.authorId === userId;
+    if (!isAuthor && !hasAdminRole) {
+      throw new ForbiddenException(
+        'You are not allowed to perform this action',
+      );
     }
 
     return course;
@@ -68,7 +87,8 @@ export class CourseService extends BaseService<CourseEntity> {
       'authorId',
       'categoryId',
     ]);
-    const course = await this.findByIdAndAuthorize(id, authorId);
+
+    const course = await this.findByIdAndVerifyAuthor(id, authorId);
 
     if (course.categoryId !== categoryId) {
       const category = await this.categoryService.findById(categoryId);
@@ -81,23 +101,12 @@ export class CourseService extends BaseService<CourseEntity> {
     });
   }
 
-  async deleteById(id: number, userId: number): Promise<DeleteResult> {
-    const course = await this.findByIdAndAuthorize(id, userId);
+  async deleteById(id: number, userId: number): Promise<CourseEntity> {
+    const course = await this.findByIdAndVerifyAuthor(id, userId, {
+      relations: ['lessons', 'exercises', 'exercises.questions'],
+    });
 
-    return this.delete(id);
-  }
-
-  async findByIdAndAuthorize(id: number, userId: number) {
-    const [course, hasAdminRole] = await Promise.all([
-      this.findById(id),
-      this.userService.checkAdminRole(userId),
-    ]);
-    const isAuthor = course.authorId === userId;
-    if (!isAuthor && !hasAdminRole) {
-      throw new ForbiddenException('You are not allowed to access this course');
-    }
-
-    return course;
+    return this.remove(course);
   }
 
   async checkAuthor(id: number, authorId: number) {

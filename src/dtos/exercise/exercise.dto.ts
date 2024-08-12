@@ -2,6 +2,7 @@ import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { format } from 'date-fns';
 import { BaseDto } from 'src/common/base.dto';
 import { CourseDto } from '../course/course.dto';
+import { QuestionDto } from '../question/question.dto';
 
 export class ExerciseDto extends BaseDto {
   @Expose()
@@ -21,7 +22,7 @@ export class ExerciseDto extends BaseDto {
   deadline: string;
 
   @Expose()
-  min_passing_score: number;
+  min_passing_percentage: number;
 
   @Expose()
   max_tries: number;
@@ -32,4 +33,8 @@ export class ExerciseDto extends BaseDto {
   @Expose()
   @Type(() => CourseDto)
   course: CourseDto;
+
+  @Expose()
+  @Type(() => QuestionDto)
+  questions: QuestionDto[];
 }

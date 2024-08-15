@@ -3,6 +3,7 @@ import {
   BaseEntity,
   DeleteResult,
   EntityMetadata,
+  FindManyOptions,
   FindOneOptions,
   Repository,
   SelectQueryBuilder,
@@ -15,8 +16,8 @@ export abstract class BaseService<T extends BaseEntity>
 {
   constructor(protected readonly repository: Repository<T>) {}
 
-  async findAll(): Promise<T[]> {
-    return this.repository.find();
+  async findAll(options: FindManyOptions<T>): Promise<T[]> {
+    return this.repository.find(options);
   }
 
   async findOne(options: FindOneOptions<T>): Promise<T> {

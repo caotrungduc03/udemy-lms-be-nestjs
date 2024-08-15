@@ -14,15 +14,18 @@ import { DatabaseSeederService } from './database-seeder/database-seeder.service
 import { UserEntity } from './entities';
 import { ExerciseModule } from './exercise/exercise.module';
 import { LessonModule } from './lesson/lesson.module';
+import { OrderModule } from './order/order.module';
+import { ProgressExerciseQuestionModule } from './progress-exercise-question/progress-exercise-question.module';
 import { ProgressExerciseModule } from './progress-exercise/progress-exercise.module';
 import { ProgressLessonsModule } from './progress-lessons/progress-lessons.module';
 import { ProgressModule } from './progress/progress.module';
 import { QuestionModule } from './question/question.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
+import { ReportModule } from './report/report.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
-import { ProgressExerciseQuestionModule } from './progress-exercise-question/progress-exercise-question.module';
 
 @Module({
   imports: [
@@ -69,6 +72,9 @@ import { ProgressExerciseQuestionModule } from './progress-exercise-question/pro
     QuestionModule,
     ProgressExerciseModule,
     ProgressExerciseQuestionModule,
+    RabbitmqModule,
+    OrderModule,
+    ReportModule,
   ],
   controllers: [],
   providers: [

@@ -13,6 +13,7 @@ export * from './exercise/updateExercise.dto';
 export * from './lesson/createLesson.dto';
 export * from './lesson/lesson.dto';
 export * from './lesson/updateLesson.dto';
+export * from './order/createOrder.dto';
 export * from './progress-exercise/createProgressExercise.dto';
 export * from './progress-exercise/createSubmission.dto';
 export * from './progress-exercise/progressExercise.dto';

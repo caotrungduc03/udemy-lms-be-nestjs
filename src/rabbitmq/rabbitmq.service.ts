@@ -1,5 +1,5 @@
 import { OnModuleInit } from '@nestjs/common';
-import { Channel, connect, Connection } from 'amqplib';
+import { Channel, connect, Connection, ConsumeMessage } from 'amqplib';
 import { v4 as uuid } from 'uuid';
 
 const queueNames: string[] = ['order', 'report'];
@@ -33,22 +33,22 @@ export class RabbitmqService implements OnModuleInit {
       replyTo: receiveQueue.queue,
     });
 
-    const responsePromise = new Promise(async (resolve, reject) => {
-      var consumer = await this.channel.consume(
+    const responsePromise = new Promise(async (resolve) => {
+      this.channel.consume(
         receiveQueue.queue,
         async (msg) => {
-          if (msg?.properties?.correlationId === correlationId) {
-            resolve(JSON.parse(msg.content.toString()));
-            this.channel.ack(msg);
-
-            setTimeout(() => {
-              this.channel.cancel(consumer.consumerTag);
-              this.channel.deleteQueue(receiveQueue.queue);
-            }, 5000);
+          if (msg.properties.correlationId === correlationId) {
+            resolve(msg);
           }
         },
         { noAck: false },
       );
+    }).then((msg: ConsumeMessage) => {
+      this.channel.ack(msg);
+      this.channel.cancel(msg.fields.consumerTag);
+      this.channel.deleteQueue(receiveQueue.queue);
+
+      return JSON.parse(msg.content.toString());
     });
 
     return responsePromise;

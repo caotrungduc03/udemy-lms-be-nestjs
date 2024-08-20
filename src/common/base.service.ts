@@ -1,8 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 import {
   BaseEntity,
+  Brackets,
   DeleteResult,
   EntityMetadata,
+  FindManyOptions,
   FindOneOptions,
   Repository,
   SelectQueryBuilder,
@@ -15,8 +17,8 @@ export abstract class BaseService<T extends BaseEntity>
 {
   constructor(protected readonly repository: Repository<T>) {}
 
-  async findAll(): Promise<T[]> {
-    return this.repository.find();
+  async findAll(options: FindManyOptions<T>): Promise<T[]> {
+    return this.repository.find(options);
   }
 
   async findOne(options: FindOneOptions<T>): Promise<T> {
@@ -76,17 +78,39 @@ export abstract class BaseService<T extends BaseEntity>
   ): SelectQueryBuilder<T> {
     Object.keys(filter).forEach((key) => {
       if (this.columnExists(key, metadata)) {
-        if (isNaN(Number(filter[key]))) {
-          queryBuilder.andWhere(`entity.${key} ILIKE :${key}`, {
-            [key]: `%${filter[key]}%`,
-          });
+        const value = filter[key];
+        if (Array.isArray(value)) {
+          queryBuilder.andWhere(
+            new Brackets((qb) => {
+              value.forEach((item, index) => {
+                const numericItem = Number(item);
+                if (!isNaN(numericItem)) {
+                  qb.andWhere(`entity.${key} = :${key}_${index}`, {
+                    [`${key}_${index}`]: numericItem,
+                  });
+                } else {
+                  qb.andWhere(`entity.${key} ILIKE :${key}_${index}`, {
+                    [`${key}_${index}`]: `%${item}%`,
+                  });
+                }
+              });
+            }),
+          );
         } else {
-          queryBuilder.andWhere(`entity.${key} = :${key}`, {
-            [key]: Number(filter[key]),
-          });
+          const numericValue = Number(value);
+          if (!isNaN(numericValue)) {
+            queryBuilder.andWhere(`entity.${key} = :${key}`, {
+              [key]: numericValue,
+            });
+          } else {
+            queryBuilder.andWhere(`entity.${key} ILIKE :${key}`, {
+              [key]: `%${value}%`,
+            });
+          }
         }
       }
     });
+
     return queryBuilder;
   }
 

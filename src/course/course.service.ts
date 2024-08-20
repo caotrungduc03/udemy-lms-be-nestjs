@@ -57,6 +57,17 @@ export class CourseService extends BaseService<CourseEntity> {
     return course;
   }
 
+  async findCourseIds(whereObj: any): Promise<number[]> {
+    const course = await this.findAll({
+      where: {
+        ...whereObj,
+      },
+      select: ['id'],
+    });
+
+    return course.map((course) => course.id);
+  }
+
   async create(createCourseDto: CreateCourseDto): Promise<CourseEntity> {
     const { authorId, categoryId } = createCourseDto;
     const [author, category] = await Promise.all([
@@ -68,6 +79,7 @@ export class CourseService extends BaseService<CourseEntity> {
       ...createCourseDto,
       author,
       category,
+      status: false,
     });
   }
 
@@ -98,6 +110,14 @@ export class CourseService extends BaseService<CourseEntity> {
     return this.store({
       ...course,
       ...updateData,
+    });
+  }
+
+  async updateStatusById(id: number, userId: number): Promise<CourseEntity> {
+    const course = await this.findByIdAndVerifyAuthor(id, userId);
+    return this.store({
+      ...course,
+      status: !course.status,
     });
   }
 

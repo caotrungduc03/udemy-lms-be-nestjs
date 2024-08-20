@@ -26,6 +26,9 @@ export class CourseDto extends BaseDto {
   language: string;
 
   @Expose()
+  status: boolean;
+
+  @Expose()
   @Transform(({ obj }) => format(obj.updatedAt, 'dd/MM/yyyy'))
   lastUpdate: string;
 

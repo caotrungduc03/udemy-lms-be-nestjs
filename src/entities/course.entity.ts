@@ -41,6 +41,7 @@ export class CourseEntity extends CustomBaseEntity {
   priceType: string;
 
   @Column({
+    type: 'float',
     nullable: false,
   })
   price: number;
@@ -50,6 +51,13 @@ export class CourseEntity extends CustomBaseEntity {
     nullable: false,
   })
   language: string;
+
+  @Column({
+    name: 'status',
+    type: 'boolean',
+    default: false,
+  })
+  status: boolean;
 
   @Column({
     name: 'author_id',
@@ -78,7 +86,7 @@ export class CourseEntity extends CustomBaseEntity {
   })
   category: CategoryEntity;
 
-  @ManyToOne(
+  @OneToMany(
     () => ProgressEntity,
     (progress: ProgressEntity) => progress.course,
   )

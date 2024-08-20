@@ -110,7 +110,7 @@ export class ProgressController {
     );
   }
 
-  @Patch('/status/:id')
+  @Patch('/:id/status')
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async updateById(@Req() request: Request, @Param('id') id: number) {
     const userReq = request['user'];

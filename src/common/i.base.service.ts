@@ -1,8 +1,8 @@
 import { QueryOptions } from 'src/utils/options';
-import { DeleteResult, FindOneOptions } from 'typeorm';
+import { DeleteResult, FindManyOptions, FindOneOptions } from 'typeorm';
 
 export interface IBaseService<T> {
-  findAll(): Promise<T[]>;
+  findAll(options: FindManyOptions<T>): Promise<T[]>;
 
   findOne(options: FindOneOptions<T>): Promise<T>;
 

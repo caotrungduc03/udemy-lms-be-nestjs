@@ -6,11 +6,13 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
   Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { CourseDto, UpdateCourseDto } from 'src/dtos';
 import { CreateCourseDto } from 'src/dtos/course/createCourse.dto';
 import { CourseEntity } from 'src/entities';
@@ -29,7 +31,9 @@ export class CourseController {
   @Public()
   async find(@Query() queryObj: Object) {
     const [page, limit, total, courses] = await this.courseService.query(
-      queryObj,
+      {
+        ...queryObj,
+      },
       {
         relations: ['author', 'category'],
       },
@@ -114,6 +118,25 @@ export class CourseController {
       ...updateCourseDto,
       authorId: userReq.userId,
     });
+
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Updated a course',
+      CourseDto.plainToInstance(course),
+    );
+  }
+
+  @Patch(':id/status')
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async updateStatus(
+    @Req() request: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const userReq = request['user'];
+    const course = await this.courseService.updateStatusById(
+      id,
+      userReq.userId,
+    );
 
     return new CustomResponse(
       HttpStatus.OK,

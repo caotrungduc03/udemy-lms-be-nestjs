@@ -79,6 +79,7 @@ export class CourseService extends BaseService<CourseEntity> {
       ...createCourseDto,
       author,
       category,
+      status: false,
     });
   }
 
@@ -109,6 +110,14 @@ export class CourseService extends BaseService<CourseEntity> {
     return this.store({
       ...course,
       ...updateData,
+    });
+  }
+
+  async updateStatusById(id: number, userId: number): Promise<CourseEntity> {
+    const course = await this.findByIdAndVerifyAuthor(id, userId);
+    return this.store({
+      ...course,
+      status: !course.status,
     });
   }
 

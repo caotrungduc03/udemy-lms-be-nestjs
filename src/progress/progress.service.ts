@@ -34,11 +34,17 @@ export class ProgressService extends BaseService<ProgressEntity> {
         },
       }),
     ]);
+    if (!course.status) {
+      throw new ForbiddenException('Course is not active');
+    }
     if (progress) {
       throw new BadRequestException('Progress already exists');
     }
 
-    return this.store({ ...createProgressDto, course });
+    return this.store({
+      ...createProgressDto,
+      course,
+    });
   }
 
   async findById(id: number, options?: FindOptions): Promise<ProgressEntity> {
@@ -67,7 +73,9 @@ export class ProgressService extends BaseService<ProgressEntity> {
     }
 
     return this.query(
-      { ...filter },
+      {
+        ...filter,
+      },
       {
         relations: ['course', 'user', 'progressLessons'],
       },

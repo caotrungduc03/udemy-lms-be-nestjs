@@ -11,11 +11,15 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CourseDto, UpdateCourseDto } from 'src/dtos';
 import { CreateCourseDto } from 'src/dtos/course/createCourse.dto';
-import { CourseEntity } from 'src/entities';
+import { CustomParseFilePipe } from 'src/utils/customParseFile.pipe';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
 import { Public } from 'src/utils/public.decorator';
@@ -25,7 +29,10 @@ import { CourseService } from './course.service';
 
 @Controller('courses')
 export class CourseController {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    private readonly courseService: CourseService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get('/')
   @Public()
@@ -88,15 +95,25 @@ export class CourseController {
 
   @Post('/')
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
   async create(
     @Req() request: Request,
+    @UploadedFile(new CustomParseFilePipe()) file: Express.Multer.File,
     @Body() createCourseDto: CreateCourseDto,
   ) {
     const userReq = request['user'];
-    const course: CourseEntity = await this.courseService.create({
-      ...createCourseDto,
-      authorId: userReq.userId,
-    });
+
+    let imageUpload = null;
+    if (file) {
+      imageUpload = await this.cloudinaryService.uploadFile(file);
+      createCourseDto.coverImage = imageUpload.url;
+    }
+    const course = await this.courseService.create(
+      CreateCourseDto.plainToClass({
+        ...createCourseDto,
+        authorId: userReq.userId,
+      }),
+    );
 
     return new CustomResponse(
       HttpStatus.CREATED,
@@ -107,17 +124,26 @@ export class CourseController {
 
   @Put('/:id')
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
   async updateById(
     @Req() request: Request,
     @Param('id', ParseIntPipe) id: number,
+    @UploadedFile(new CustomParseFilePipe()) file: Express.Multer.File,
     @Body() updateCourseDto: UpdateCourseDto,
   ) {
     const userReq = request['user'];
-
-    const course = await this.courseService.updateById(id, {
-      ...updateCourseDto,
-      authorId: userReq.userId,
-    });
+    let imageUpload = null;
+    if (file) {
+      imageUpload = await this.cloudinaryService.uploadFile(file);
+      updateCourseDto.coverImage = imageUpload.url;
+    }
+    const course = await this.courseService.updateById(
+      id,
+      UpdateCourseDto.plainToClass({
+        ...updateCourseDto,
+        authorId: userReq.userId,
+      }),
+    );
 
     return new CustomResponse(
       HttpStatus.OK,

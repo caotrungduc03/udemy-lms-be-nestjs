@@ -29,6 +29,10 @@ export class UserService extends BaseService<UserEntity> {
   }
 
   async findById(id: number, options?: FindOptions): Promise<UserEntity> {
+    if (!id) {
+      throw new BadRequestException('UserId is required');
+    }
+
     const { relations = [] } = options || {};
 
     const user = await this.findOne({
@@ -106,6 +110,10 @@ export class UserService extends BaseService<UserEntity> {
   }
 
   async findByEmail(email: string): Promise<UserEntity> {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+
     return this.findOne({
       where: { email },
       relations: ['role'],

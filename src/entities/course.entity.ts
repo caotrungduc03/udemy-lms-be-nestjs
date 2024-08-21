@@ -30,6 +30,7 @@ export class CourseEntity extends CustomBaseEntity {
 
   @Column({
     name: 'cover_image',
+    nullable: true,
   })
   coverImage: string;
 

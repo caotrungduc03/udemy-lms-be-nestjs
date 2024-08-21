@@ -1,12 +1,15 @@
+import { Type } from 'class-transformer';
 import { IsEmpty, IsEnum, IsNotEmpty, Min, MinLength } from 'class-validator';
+import { BaseRequestDto } from 'src/common/baseRequest.dto';
 
-export class UpdateCourseDto {
+export class UpdateCourseDto extends BaseRequestDto {
   @IsNotEmpty()
   @MinLength(3)
   courseName: string;
 
   description: string;
 
+  @IsEmpty()
   coverImage: string;
 
   @IsNotEmpty()
@@ -16,6 +19,7 @@ export class UpdateCourseDto {
   priceType: string;
 
   @IsNotEmpty()
+  @Type(() => Number)
   @Min(0)
   price: number;
 

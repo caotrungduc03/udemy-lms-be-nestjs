@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -25,6 +26,10 @@ export class CourseService extends BaseService<CourseEntity> {
   }
 
   async findById(id: number, options?: FindOptions): Promise<CourseEntity> {
+    if (!id) {
+      throw new BadRequestException('CourseId is required');
+    }
+
     const { relations = [] } = options || {};
 
     const course = await this.findOne({
@@ -105,6 +110,10 @@ export class CourseService extends BaseService<CourseEntity> {
     if (course.categoryId !== categoryId) {
       const category = await this.categoryService.findById(categoryId);
       course.category = category;
+    }
+
+    if (!updateData.coverImage) {
+      updateData.coverImage = course.coverImage;
     }
 
     return this.store({

@@ -1,5 +1,12 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  Unique,
+} from 'typeorm';
 import { ExerciseEntity } from './exercise.entity';
 import { ProgressEntity } from './progress.entity';
 import { ProgressExerciseQuestionEntity } from './progressExerciseQuestion.entity';
@@ -7,6 +14,7 @@ import { ProgressExerciseQuestionEntity } from './progressExerciseQuestion.entit
 @Entity({
   name: 'progress_exercises',
 })
+@Unique(['progressId', 'exerciseId', 'tryCount'])
 export class ProgressExerciseEntity extends CustomBaseEntity {
   @Column({
     name: 'try_count',

@@ -22,23 +22,19 @@ export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}
 
   @Get('/')
-  async find(@Req() request: Request, @Query() queryObj: Object) {
+  async find(@Req() request: Request, @Query() query: Object) {
     const userReq = request['user'];
 
-    const [page, limit, total, progress] = await this.progressService.query(
-      {
-        ...queryObj,
+    const [page, limit, total, items] =
+      await this.progressService.queryProgress({
+        ...query,
         userId: userReq.userId,
-      },
-      {
-        relations: ['course', 'progressLessons', 'progressExercises'],
-      },
-    );
-    const results: Pagination<ProgressDto> = {
+      });
+    const results: Pagination<any> = {
       page,
       limit,
       total,
-      items: ProgressDto.plainToInstance(progress, ['student']),
+      items,
     };
 
     return new CustomResponse(

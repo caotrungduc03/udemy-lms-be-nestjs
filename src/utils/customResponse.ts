@@ -1,10 +1,10 @@
-export class CustomResponse<T = any> {
+export class CustomResponse {
   statusCode: number;
   message: string;
-  data?: T;
+  data?: any;
   path?: string;
 
-  constructor(statusCode: number, message: string, data?: T, path?: string) {
+  constructor(statusCode: number, message: string, data?: any, path?: string) {
     this.statusCode = statusCode;
     this.message = message;
     this.data = data;

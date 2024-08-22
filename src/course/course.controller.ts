@@ -36,11 +36,9 @@ export class CourseController {
 
   @Get('/')
   @Public()
-  async find(@Query() queryObj: Object) {
+  async find(@Query() query: Object) {
     const [page, limit, total, courses] = await this.courseService.query(
-      {
-        ...queryObj,
-      },
+      query,
       {
         relations: ['author', 'category'],
       },
@@ -58,10 +56,10 @@ export class CourseController {
 
   @Get('/search')
   @Public()
-  async search(@Query() queryObj: Object) {
+  async search(@Query() query: Object) {
     const [page, limit, total, courses] = await this.courseService.search(
       {
-        ...queryObj,
+        ...query,
         columns: ['courseName', 'description'],
       },
       {

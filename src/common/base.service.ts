@@ -66,7 +66,16 @@ export abstract class BaseService<T extends BaseEntity>
     relations: string[],
   ): SelectQueryBuilder<T> {
     relations.forEach((relation) => {
-      queryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
+      const [relationName, subRelation] = relation.split('.');
+
+      if (subRelation) {
+        queryBuilder.leftJoinAndSelect(
+          `${relationName}.${subRelation}`,
+          subRelation,
+        );
+      } else {
+        queryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
+      }
     });
     return queryBuilder;
   }
@@ -130,10 +139,10 @@ export abstract class BaseService<T extends BaseEntity>
   }
 
   async query(
-    queryObj: any,
+    query: any,
     options?: QueryOptions,
   ): Promise<[page: number, limit: number, total: number, data: T[]]> {
-    let { page = 1, limit = 10, sort = 'id:asc', ...filter } = queryObj;
+    let { page = 1, limit = 10, sort = 'id:desc', ...filter } = query;
     const { relations = [] } = options || {};
     page = Number(page);
     limit = Math.min(Number(limit), 100);
@@ -144,6 +153,7 @@ export abstract class BaseService<T extends BaseEntity>
 
     const queryBuilder: SelectQueryBuilder<T> =
       this.repository.createQueryBuilder('entity');
+
     this.applyRelations(queryBuilder, relations);
 
     const metadata: EntityMetadata = this.repository.metadata;
@@ -178,16 +188,16 @@ export abstract class BaseService<T extends BaseEntity>
   }
 
   async search(
-    queryObj: any,
+    query: any,
     options?: QueryOptions,
   ): Promise<[page: number, limit: number, total: number, data: T[]]> {
     let {
       page = 1,
       limit = 10,
-      sort = 'id:asc',
+      sort = 'id:desc',
       q = '',
       columns = [],
-    } = queryObj;
+    } = query;
     const { relations = [] } = options || {};
     page = Number(page);
     limit = Math.min(Number(limit), 100);
@@ -198,6 +208,7 @@ export abstract class BaseService<T extends BaseEntity>
 
     const queryBuilder: SelectQueryBuilder<T> =
       this.repository.createQueryBuilder('entity');
+
     this.applyRelations(queryBuilder, relations);
 
     const metadata: EntityMetadata = this.repository.metadata;

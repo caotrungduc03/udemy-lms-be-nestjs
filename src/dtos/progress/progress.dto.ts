@@ -15,28 +15,29 @@ export class ProgressDto extends BaseDto {
   @Exclude()
   courseId: number;
 
-  @Expose({ groups: ['student'] })
-  @Transform(({ obj }) => CourseDto.plainToInstance(obj?.course))
+  @Expose()
+  @Transform(({ obj }) => {
+    const { lessons, exercises, ...rest } = obj.course;
+    return CourseDto.plainToInstance(rest);
+  })
   course: CourseDto;
 
   @Expose()
   @Transform(({ obj }) => {
-    return (
-      obj?.progressLessons?.map(
-        (progressLesson: ProgressLessonsEntity) => progressLesson.lessonId,
-      ) || []
+    return obj.progressLessons?.map(
+      (progressLesson: ProgressLessonsEntity) => progressLesson.lessonId,
     );
   })
   progressLessons: number[];
 
   @Expose()
   @Transform(({ obj }) => {
-    return (
-      obj?.progressExercises?.map(
-        (progressExercise: ProgressExerciseEntity) =>
-          progressExercise.progressId,
-      ) || []
+    return obj.progressExercises?.map(
+      (progressExercise: ProgressExerciseEntity) => progressExercise.progressId,
     );
   })
   progressExercises: number[];
+
+  @Expose()
+  percentage: number;
 }

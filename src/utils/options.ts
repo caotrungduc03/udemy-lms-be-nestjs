@@ -1,7 +1,7 @@
 export interface QueryOptions {
-  relations: string[];
+  relations?: string[];
 }
 
 export interface FindOptions {
-  relations: string[];
+  relations?: string[];
 }

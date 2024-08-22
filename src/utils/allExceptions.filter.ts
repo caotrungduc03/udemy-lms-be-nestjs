@@ -36,7 +36,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = exception.message;
     }
 
-    const responseBody: CustomResponse = new CustomResponse(
+    const responseBody = new CustomResponse(
       statusCode,
       message,
       null,

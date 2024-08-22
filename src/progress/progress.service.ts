@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CourseService } from 'src/course/course.service';
-import { CreateProgressDto } from 'src/dtos';
+import { CreateProgressDto, ProgressDto } from 'src/dtos';
 import { ProgressEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { FindOptions } from 'src/utils/options';
@@ -118,6 +118,44 @@ export class ProgressService extends BaseService<ProgressEntity> {
     }
 
     return progress;
+  }
+
+  async queryProgress(query: Object): Promise<[number, number, number, any]> {
+    const [page, limit, total, progress] = await this.query(query, {
+      relations: [
+        'course',
+        'course.lessons',
+        'course.exercises',
+        'progressLessons',
+        'progressExercises',
+      ],
+    });
+
+    const results = progress.map((progress) => {
+      const progressDto = ProgressDto.plainToInstance(progress);
+      progressDto.progressLessons = [...new Set(progressDto.progressLessons)];
+      progressDto.progressExercises = [
+        ...new Set(progressDto.progressExercises),
+      ];
+      const totalLesson = progress.course.lessons.length;
+      const totalExercise = progress.course.exercises.length;
+      if (totalLesson + totalExercise === 0) {
+        progressDto.percentage = 0;
+      } else {
+        progressDto.percentage = Number(
+          (
+            ((progressDto.progressLessons.length +
+              progressDto.progressExercises.length) /
+              (totalLesson + totalExercise)) *
+            100
+          ).toFixed(2),
+        );
+      }
+
+      return progressDto;
+    });
+
+    return [page, limit, total, results];
   }
 
   async updateStatusById(id: number, userId: number): Promise<ProgressEntity> {

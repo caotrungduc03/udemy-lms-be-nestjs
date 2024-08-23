@@ -61,25 +61,30 @@ export class ProgressService extends BaseService<ProgressEntity> {
     return progress;
   }
 
-  async findByCourseId(courseId: number, userId: number) {
-    const filter: any = { courseId };
-    const [isAuthor, hasAdminRole] = await Promise.all([
-      this.courseService.checkAuthor(courseId, userId),
-      this.userService.checkAdminRole(userId),
-    ]);
-
-    if (isAuthor && !hasAdminRole) {
-      filter.userId = userId;
+  async findOneByCourseId(
+    courseId: number,
+    userId: number,
+  ): Promise<ProgressDto> {
+    const progress = await this.findOne({
+      where: {
+        userId,
+        courseId,
+      },
+      relations: ['progressLessons', 'progressExercises'],
+    });
+    if (!progress) {
+      throw new BadRequestException('Progress not found');
     }
 
-    return this.query(
-      {
-        ...filter,
-      },
-      {
-        relations: ['course', 'user', 'progressLessons'],
-      },
+    const progressDto = ProgressDto.plainToInstance(progress);
+    progressDto.progressLessonIds = progress.progressLessons.map(
+      (progressLesson) => progressLesson.id,
     );
+    progressDto.progressExerciseIds = progress.progressExercises.map(
+      (progressExercise) => progressExercise.id,
+    );
+
+    return progressDto;
   }
 
   async findByIdAndVerifyUser(
@@ -120,10 +125,13 @@ export class ProgressService extends BaseService<ProgressEntity> {
     return progress;
   }
 
-  async queryProgress(query: Object): Promise<[number, number, number, any]> {
+  async queryProgress(
+    query: Object,
+  ): Promise<[number, number, number, ProgressDto[]]> {
     const [page, limit, total, progress] = await this.query(query, {
       relations: [
         'course',
+        'course.author',
         'course.lessons',
         'course.exercises',
         'progressLessons',
@@ -131,22 +139,23 @@ export class ProgressService extends BaseService<ProgressEntity> {
       ],
     });
 
-    const results = progress.map((progress) => {
+    const progressDtos = progress.map((progress) => {
       const progressDto = ProgressDto.plainToInstance(progress);
-      progressDto.progressLessons = [...new Set(progressDto.progressLessons)];
-      progressDto.progressExercises = [
-        ...new Set(progressDto.progressExercises),
-      ];
-      const totalLesson = progress.course.lessons.length;
-      const totalExercise = progress.course.exercises.length;
-      if (totalLesson + totalExercise === 0) {
+      const completedLesson = new Set(progress.progressLessons.map((p) => p.id))
+        .size;
+      const completedExercise = new Set(
+        progress.progressExercises.map((p) => p.id),
+      ).size;
+      const totalLessons = progress.course.lessons.length;
+      const totalExercises = progress.course.exercises.length;
+
+      if (totalLessons + totalExercises === 0) {
         progressDto.percentage = 0;
       } else {
         progressDto.percentage = Number(
           (
-            ((progressDto.progressLessons.length +
-              progressDto.progressExercises.length) /
-              (totalLesson + totalExercise)) *
+            ((completedLesson + completedExercise) /
+              (totalLessons + totalExercises)) *
             100
           ).toFixed(2),
         );
@@ -155,7 +164,7 @@ export class ProgressService extends BaseService<ProgressEntity> {
       return progressDto;
     });
 
-    return [page, limit, total, results];
+    return [page, limit, total, progressDtos];
   }
 
   async updateStatusById(id: number, userId: number): Promise<ProgressEntity> {

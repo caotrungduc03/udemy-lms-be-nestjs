@@ -25,7 +25,7 @@ export class ProgressController {
   async find(@Req() request: Request, @Query() query: Object) {
     const userReq = request['user'];
 
-    const [page, limit, total, items] =
+    const [page, limit, total, progressDtos] =
       await this.progressService.queryProgress({
         ...query,
         userId: userReq.userId,
@@ -34,7 +34,7 @@ export class ProgressController {
       page,
       limit,
       total,
-      items,
+      items: progressDtos,
     };
 
     return new CustomResponse(
@@ -45,26 +45,20 @@ export class ProgressController {
   }
 
   @Get('/courses/:courseId')
-  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
-  async findByCourseId(
+  async findOneByCourseId(
     @Req() request: Request,
     @Param('courseId') courseId: number,
   ) {
     const userReq = request['user'];
-
-    const [page, limit, total, progress] =
-      await this.progressService.findByCourseId(courseId, userReq.userId);
-    const results: Pagination<ProgressDto> = {
-      page,
-      limit,
-      total,
-      items: ProgressDto.plainToInstance(progress),
-    };
+    const progressDto = await this.progressService.findOneByCourseId(
+      courseId,
+      userReq.userId,
+    );
 
     return new CustomResponse(
       HttpStatus.OK,
       'Progress retrieved successfully',
-      results,
+      progressDto,
     );
   }
 

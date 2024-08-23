@@ -1,6 +1,5 @@
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { BaseDto } from 'src/common/base.dto';
-import { ProgressExerciseEntity, ProgressLessonsEntity } from 'src/entities';
 import { CourseDto } from '../course/course.dto';
 import { UserDto } from '../user/user.dto';
 
@@ -17,27 +16,16 @@ export class ProgressDto extends BaseDto {
 
   @Expose()
   @Transform(({ obj }) => {
+    if (!obj?.course) return undefined;
+
     const { lessons, exercises, ...rest } = obj.course;
     return CourseDto.plainToInstance(rest);
   })
   course: CourseDto;
 
-  @Expose()
-  @Transform(({ obj }) => {
-    return obj.progressLessons?.map(
-      (progressLesson: ProgressLessonsEntity) => progressLesson.lessonId,
-    );
-  })
-  progressLessons: number[];
+  progressLessonIds: number[];
 
-  @Expose()
-  @Transform(({ obj }) => {
-    return obj.progressExercises?.map(
-      (progressExercise: ProgressExerciseEntity) => progressExercise.progressId,
-    );
-  })
-  progressExercises: number[];
+  progressExerciseIds: number[];
 
-  @Expose()
   percentage: number;
 }

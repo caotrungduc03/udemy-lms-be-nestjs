@@ -86,7 +86,6 @@ export class UserService extends BaseService<UserEntity> {
       'phoneNumber',
       'avatar',
       'roleId',
-      'status',
     ]);
     const user = await this.findById(id);
 
@@ -156,5 +155,14 @@ export class UserService extends BaseService<UserEntity> {
     const user = await this.findById(id, { relations: ['role'] });
 
     return user.role?.roleName === 'ADMIN';
+  }
+
+  async updateStatus(id: number): Promise<UserEntity> {
+    const user = await this.findById(id);
+
+    return this.store({
+      ...user,
+      status: !user.status,
+    });
   }
 }

@@ -100,10 +100,8 @@ export class CourseController {
     @Body() createCourseDto: CreateCourseDto,
   ) {
     const userReq = request['user'];
-
-    let imageUpload = null;
     if (file) {
-      imageUpload = await this.cloudinaryService.uploadFile(file);
+      let imageUpload = await this.cloudinaryService.uploadFile(file);
       createCourseDto.coverImage = imageUpload.url;
     }
     const course = await this.courseService.create(
@@ -130,9 +128,8 @@ export class CourseController {
     @Body() updateCourseDto: UpdateCourseDto,
   ) {
     const userReq = request['user'];
-    let imageUpload = null;
     if (file) {
-      imageUpload = await this.cloudinaryService.uploadFile(file);
+      let imageUpload = await this.cloudinaryService.uploadFile(file);
       updateCourseDto.coverImage = imageUpload.url;
     }
     const course = await this.courseService.updateById(

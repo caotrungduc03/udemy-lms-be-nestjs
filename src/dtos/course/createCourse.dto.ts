@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsEmpty, IsEnum, IsNotEmpty, Min, MinLength } from 'class-validator';
 import { BaseRequestDto } from 'src/common/baseRequest.dto';
 
-export enum PriceType {
+export enum PriceTypeEnum {
   FREE = 'free',
   PAID = 'paid',
 }
@@ -18,7 +18,7 @@ export class CreateCourseDto extends BaseRequestDto {
   coverImage: string;
 
   @IsNotEmpty()
-  @IsEnum(PriceType, {
+  @IsEnum(PriceTypeEnum, {
     message: 'Price type must be free or paid',
   })
   priceType: string;

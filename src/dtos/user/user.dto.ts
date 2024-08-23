@@ -1,4 +1,4 @@
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { BaseDto } from 'src/common/base.dto';
 import { RoleDto } from '../role/role.dto';
 
@@ -19,7 +19,9 @@ export class UserDto extends BaseDto {
   @Expose()
   avatar: string;
 
-  @Exclude()
+  @Expose({
+    groups: ['admin'],
+  })
   roleId: number;
 
   @Expose({
@@ -33,7 +35,7 @@ export class UserDto extends BaseDto {
   lastLogin: Date;
 
   @Expose({
-    groups: ['private', 'admin'],
+    groups: ['private'],
   })
   @Type(() => RoleDto)
   role: RoleDto;

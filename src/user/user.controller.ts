@@ -18,7 +18,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from 'src/dtos';
 import { UserDto } from 'src/dtos/user/user.dto';
-import { UserEntity } from 'src/entities';
 import { CustomParseFilePipe } from 'src/utils/customParseFile.pipe';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
@@ -35,10 +34,8 @@ export class UserController {
 
   @Get('/')
   @Roles(RoleEnum.ADMIN)
-  async find(@Query() queryObj: Object) {
-    const [page, limit, total, users] = await this.userService.query(queryObj, {
-      relations: ['role'],
-    });
+  async find(@Query() query: Object) {
+    const [page, limit, total, users] = await this.userService.query(query);
     const results: Pagination<UserDto> = {
       page,
       limit,
@@ -52,7 +49,7 @@ export class UserController {
   @Get('/profile')
   async profile(@Req() request: Request) {
     const userReq = request['user'];
-    const user: UserEntity = await this.userService.findById(userReq.userId, {
+    const user = await this.userService.findById(userReq.userId, {
       relations: ['role'],
     });
 
@@ -63,36 +60,10 @@ export class UserController {
     );
   }
 
-  @Patch('/profile')
-  @UseInterceptors(FileInterceptor('file'))
-  async updateProfile(
-    @Req() request: Request,
-    @UploadedFile(new CustomParseFilePipe()) file: Express.Multer.File,
-    @Body() updateProfileDto: UpdateProfileDto,
-  ) {
-    const userReq = request['user'];
-    let avatar = null;
-    if (file) {
-      avatar = await this.cloudinaryService.uploadFile(file);
-      updateProfileDto.avatar = avatar.url;
-    }
-
-    const user: UserEntity = await this.userService.updateProfile(
-      userReq.userId,
-      updateProfileDto,
-    );
-
-    return new CustomResponse(
-      HttpStatus.OK,
-      'Updated profile',
-      UserDto.plainToInstance(user, ['private']),
-    );
-  }
-
   @Get('/:id')
   @Roles(RoleEnum.ADMIN)
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const user: UserEntity = await this.userService.findById(id, {
+    const user = await this.userService.findById(id, {
       relations: ['role'],
     });
 
@@ -105,8 +76,18 @@ export class UserController {
 
   @Post('/')
   @Roles(RoleEnum.ADMIN)
-  async create(@Body() createUserDto: CreateUserDto) {
-    const user: UserEntity = await this.userService.create(createUserDto);
+  @UseInterceptors(FileInterceptor('file'))
+  async create(
+    @UploadedFile(new CustomParseFilePipe()) file: Express.Multer.File,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    if (file) {
+      let imageUpload = await this.cloudinaryService.uploadFile(file);
+      createUserDto.avatar = imageUpload.url;
+    }
+    const user = await this.userService.create(
+      CreateUserDto.plainToClass(createUserDto),
+    );
 
     return new CustomResponse(
       HttpStatus.CREATED,
@@ -117,14 +98,58 @@ export class UserController {
 
   @Put('/:id')
   @Roles(RoleEnum.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
   async updateById(
     @Param('id', ParseIntPipe) id: number,
+    @UploadedFile(new CustomParseFilePipe()) file: Express.Multer.File,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    const user: UserEntity = await this.userService.updateById(
+    if (file) {
+      let imageUpload = await this.cloudinaryService.uploadFile(file);
+      updateUserDto.avatar = imageUpload.url;
+    }
+
+    const user = await this.userService.updateById(
       id,
-      updateUserDto,
+      UpdateUserDto.plainToClass(updateUserDto),
     );
+
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Updated a user',
+      UserDto.plainToInstance(user, ['admin']),
+    );
+  }
+
+  @Patch('/profile')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateProfile(
+    @Req() request: Request,
+    @UploadedFile(new CustomParseFilePipe()) file: Express.Multer.File,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    const userReq = request['user'];
+    if (file) {
+      let imageUpload = await this.cloudinaryService.uploadFile(file);
+      updateProfileDto.avatar = imageUpload.url;
+    }
+
+    const user = await this.userService.updateProfile(
+      userReq.userId,
+      UpdateProfileDto.plainToClass(updateProfileDto),
+    );
+
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Updated profile',
+      UserDto.plainToInstance(user, ['private']),
+    );
+  }
+
+  @Patch('/:id/status')
+  @Roles(RoleEnum.ADMIN)
+  async updateStatus(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.updateStatus(id);
 
     return new CustomResponse(
       HttpStatus.OK,

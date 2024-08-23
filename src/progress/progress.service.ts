@@ -78,11 +78,15 @@ export class ProgressService extends BaseService<ProgressEntity> {
 
     const progressDto = ProgressDto.plainToInstance(progress);
     progressDto.progressLessonIds = progress.progressLessons.map(
-      (progressLesson) => progressLesson.id,
+      (progressLesson) => progressLesson.lessonId,
     );
-    progressDto.progressExerciseIds = progress.progressExercises.map(
-      (progressExercise) => progressExercise.id,
-    );
+    progressDto.progressExerciseIds = [
+      ...new Set(
+        progress.progressExercises.map(
+          (progressExercise) => progressExercise.exerciseId,
+        ),
+      ),
+    ];
 
     return progressDto;
   }
@@ -141,10 +145,11 @@ export class ProgressService extends BaseService<ProgressEntity> {
 
     const progressDtos = progress.map((progress) => {
       const progressDto = ProgressDto.plainToInstance(progress);
-      const completedLesson = new Set(progress.progressLessons.map((p) => p.id))
-        .size;
+      const completedLesson = progress.progressLessons.map(
+        (p) => p.lessonId,
+      ).length;
       const completedExercise = new Set(
-        progress.progressExercises.map((p) => p.id),
+        progress.progressExercises.map((p) => p.exerciseId),
       ).size;
       const totalLessons = progress.course.lessons.length;
       const totalExercises = progress.course.exercises.length;

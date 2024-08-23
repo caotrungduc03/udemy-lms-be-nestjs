@@ -54,7 +54,7 @@ export class ProgressExerciseController {
     return new CustomResponse(HttpStatus.CREATED, submission);
   }
 
-  @Get('/submissions/:id')
+  @Get('/:id')
   async getSubmission(@Req() request: Request, @Param('id') id: number) {
     const userReq = request['user'];
 

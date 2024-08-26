@@ -23,6 +23,7 @@ import { QuestionModule } from './question/question.module';
 import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 import { ReportModule } from './report/report.module';
 import { RoleModule } from './role/role.module';
+import { SubmissionModule } from './submission/submission.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
@@ -75,6 +76,7 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
     RabbitmqModule,
     OrderModule,
     ReportModule,
+    SubmissionModule,
   ],
   controllers: [],
   providers: [

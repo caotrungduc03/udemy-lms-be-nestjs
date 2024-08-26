@@ -48,6 +48,9 @@ export class ProgressService extends BaseService<ProgressEntity> {
   }
 
   async findById(id: number, options?: FindOptions): Promise<ProgressEntity> {
+    if (!id) {
+      throw new BadRequestException('ProgressId is required');
+    }
     const { relations = [] } = options || {};
 
     const progress = await this.findOne({

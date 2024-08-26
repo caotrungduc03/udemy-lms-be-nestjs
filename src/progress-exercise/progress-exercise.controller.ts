@@ -1,18 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
-import {
-  CreateProgressExerciseDto,
-  CreateSubmission,
-  ProgressExerciseDto,
-} from 'src/dtos';
+import { CreateProgressExerciseDto, ProgressExerciseDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
 import { ProgressExerciseService } from './progress-exercise.service';
 
@@ -37,36 +25,6 @@ export class ProgressExerciseController {
       HttpStatus.CREATED,
       'Created a new progress exercise',
       ProgressExerciseDto.plainToInstance(progressExercise),
-    );
-  }
-
-  @Post('/submissions')
-  async createSubmission(
-    @Req() request: Request,
-    @Body() createSubmission: CreateSubmission,
-  ) {
-    const userReq = request['user'];
-    const submission = await this.progressExerciseService.createSubmission(
-      createSubmission,
-      userReq.userId,
-    );
-
-    return new CustomResponse(HttpStatus.CREATED, submission);
-  }
-
-  @Get('/:id')
-  async getSubmission(@Req() request: Request, @Param('id') id: number) {
-    const userReq = request['user'];
-
-    const submission = await this.progressExerciseService.getSubmission(
-      id,
-      userReq.userId,
-    );
-
-    return new CustomResponse(
-      HttpStatus.OK,
-      'Submission retrieved successfully',
-      submission,
     );
   }
 }

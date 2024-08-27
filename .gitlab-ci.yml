@@ -1,0 +1,50 @@
+variables:
+  USER_PROJECT: 'udemy-lms'
+  IMAGE_VERSION: '$REGISTRY_URL/$REGISTRY_USER/$CI_PROJECT_NAME:$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA'
+
+stages:
+  - build
+  - push
+  - deploy
+
+build:
+  stage: build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - docker build -t $IMAGE_VERSION .
+  tags:
+    - udemy-lms-runner-dev-shell
+  only:
+    - tags
+
+push:
+  stage: push
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - docker login $REGISTRY_URL -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - docker push $IMAGE_VERSION
+  after_script:
+    - docker logout $REGISTRY_URL
+  tags:
+    - udemy-lms-runner-dev-shell
+  only:
+    - tags
+
+deploy:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - docker login $REGISTRY_URL -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - docker pull $IMAGE_VERSION
+    - sudo su $USER_PROJECT -c "pwd; ls -l; docker rm -f $CI_PROJECT_NAME; docker run --name $CI_PROJECT_NAME --env-file $ENV_FILE_PATH -dp $BE_PORT $IMAGE_VERSION"
+  after_script:
+    - docker logout $REGISTRY_URL
+  tags:
+    - udemy-lms-runner-dev-shell
+  only:
+    - tags

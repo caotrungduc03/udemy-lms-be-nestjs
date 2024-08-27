@@ -4,6 +4,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
@@ -78,7 +79,7 @@ import { AllExceptionsFilter } from './utils/allExceptions.filter';
     ReportModule,
     SubmissionModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     UserService,
     {

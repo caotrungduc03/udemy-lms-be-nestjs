@@ -27,6 +27,8 @@ export * from './role/createRole.dto';
 export * from './role/role.dto';
 export * from './role/updateRole.dto';
 export * from './submission/createSubmission.dto';
+export * from './submission/getSubmissionsResponse.dto';
+export * from './submission/submission.dto';
 export * from './user/createUser.dto';
 export * from './user/updateProfile.dto';
 export * from './user/updateUser.dto';

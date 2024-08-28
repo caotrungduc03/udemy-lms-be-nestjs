@@ -4,7 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { format } from 'date-fns';
-import { CreateSubmission, ExerciseDto } from 'src/dtos';
+import {
+  CreateSubmission,
+  ExerciseDto,
+  getSubmissionsResponseDto,
+  SubmissionDto,
+  SubmissionStatusEnum,
+} from 'src/dtos';
 import {
   GradingStatusEnum,
   QuestionEntity,
@@ -26,7 +32,7 @@ export class SubmissionService {
     progressId: number,
     exerciseId: number,
     userId: number,
-  ): Promise<any> {
+  ): Promise<getSubmissionsResponseDto> {
     const progress = await this.progressService.findByIdAndVerifyUser(
       progressId,
       userId,
@@ -52,48 +58,53 @@ export class SubmissionService {
       ],
     });
 
-    const submissions = progressExercises.map((progressExercise) => {
-      const { progressExercisesQuestions } = progressExercise;
-      let totalQuestions = 0;
-      let numberOfCorrectAnswers = 0;
-      let numberOfIncorrectAnswers = 0;
-      let numberOfPendingAnswers = 0;
-      let totalPointQuestions = 0;
-      let gainedPointQuestions = 0;
+    const submissions: SubmissionDto[] = progressExercises.map(
+      (progressExercise) => {
+        const { progressExercisesQuestions } = progressExercise;
+        let totalQuestions = 0;
+        let numberOfCorrectAnswers = 0;
+        let numberOfIncorrectAnswers = 0;
+        let numberOfPendingAnswers = 0;
+        let totalPointQuestions = 0;
+        let gainedPointQuestions = 0;
 
-      progressExercisesQuestions.forEach((progressExercisesQuestion) => {
-        if (progressExercisesQuestion.gradingStatus === 'ungraded') {
-          numberOfPendingAnswers += 1;
-        } else if (progressExercisesQuestion.gradingStatus === 'graded') {
-          numberOfCorrectAnswers += 1;
-          totalPointQuestions += progressExercisesQuestion.question.maxPoint;
-          gainedPointQuestions += progressExercisesQuestion.point;
-        } else {
-          numberOfIncorrectAnswers += 1;
-        }
-        totalQuestions += 1;
-      });
+        progressExercisesQuestions.forEach((progressExercisesQuestion) => {
+          if (progressExercisesQuestion.gradingStatus === 'ungraded') {
+            numberOfPendingAnswers += 1;
+          } else if (progressExercisesQuestion.gradingStatus === 'graded') {
+            numberOfCorrectAnswers += 1;
+            totalPointQuestions += progressExercisesQuestion.question.maxPoint;
+            gainedPointQuestions += progressExercisesQuestion.point;
+          } else {
+            numberOfIncorrectAnswers += 1;
+          }
+          totalQuestions += 1;
+        });
 
-      const percentage = (gainedPointQuestions / totalPointQuestions) * 100;
-      const passed = percentage >= exercise.min_passing_percentage;
-      const status =
-        numberOfPendingAnswers > 0 ? 'pending' : passed ? 'passed' : 'failed';
+        const percentage = (gainedPointQuestions / totalPointQuestions) * 100;
+        const passed = percentage >= exercise.min_passing_percentage;
+        const status =
+          numberOfPendingAnswers > 0
+            ? SubmissionStatusEnum.PENDING
+            : passed
+              ? SubmissionStatusEnum.PASS
+              : SubmissionStatusEnum.FAIL;
 
-      return {
-        progressExerciseId: progressExercise.id,
-        tryCount: progressExercise.tryCount,
-        totalQuestions,
-        numberOfCorrectAnswers,
-        numberOfIncorrectAnswers,
-        numberOfPendingAnswers,
-        totalPointQuestions,
-        gainedPointQuestions,
-        percentage,
-        passed,
-        status,
-        date: format(progressExercise.createdAt, 'MM-dd-yyyy HH:mm:ss'),
-      };
-    });
+        return {
+          progressExerciseId: progressExercise.id,
+          tryCount: progressExercise.tryCount,
+          totalQuestions,
+          numberOfCorrectAnswers,
+          numberOfIncorrectAnswers,
+          numberOfPendingAnswers,
+          totalPointQuestions,
+          gainedPointQuestions,
+          percentage,
+          status,
+          date: format(progressExercise.createdAt, 'MM-dd-yyyy HH:mm:ss'),
+        };
+      },
+    );
 
     return {
       exercise: ExerciseDto.plainToInstance(exercise),
@@ -104,7 +115,7 @@ export class SubmissionService {
   async createSubmission(
     createSubmission: CreateSubmission,
     userId: number,
-  ): Promise<any> {
+  ): Promise<SubmissionDto> {
     const { progressExerciseId, submission } = createSubmission;
     const [progressExercise, existingSubmission] = await Promise.all([
       this.progressExerciseService.findByIdAndVerifyUser(
@@ -128,18 +139,21 @@ export class SubmissionService {
     const { exercise } = progressExercise;
     const { questions } = exercise;
 
-    let numberOfChoiceQuestions = 0;
-    let numberOfFillQuestions = 0;
-    let totalPointChoiceQuestions = 0;
-    let numberOfCorrectChoiceAnswers = 0;
-    let numberOfIncorrectChoiceAnswers = 0;
-    let gainedPointChoiceQuestions = 0;
+    let totalQuestions = questions.length;
+    let numberOfCorrectAnswers = 0;
+    let numberOfIncorrectAnswers = 0;
+    let numberOfPendingAnswers = 0;
+    let totalPointQuestions = 0;
+    let gainedPointQuestions = 0;
 
     await Promise.all(
-      questions.map(async (question) => {
+      questions.map((question) => {
         const answer = submission.find((ans) => question.id === ans.questionId);
 
         if (!answer) {
+          numberOfIncorrectAnswers++;
+          totalPointQuestions += question.maxPoint;
+
           return this.progressExerciseQuestionService.store({
             progressExerciseId,
             questionId: question.id,
@@ -149,26 +163,26 @@ export class SubmissionService {
           });
         }
 
-        let gradingStatus = GradingStatusEnum.UNGRADED;
+        let gradingStatus = '';
         let point = 0;
 
         switch (question.questionType) {
           case QuestionTypeEnum.CHOICE:
-            numberOfChoiceQuestions++;
-            totalPointChoiceQuestions += question.maxPoint;
+            totalPointQuestions += question.maxPoint;
 
             point = this.calculateChoicePoints(question, answer.answers);
             if (point > 0) {
-              numberOfCorrectChoiceAnswers++;
+              numberOfCorrectAnswers++;
             } else {
-              numberOfIncorrectChoiceAnswers++;
+              numberOfIncorrectAnswers++;
             }
 
-            gainedPointChoiceQuestions += point;
+            gainedPointQuestions += point;
             gradingStatus = GradingStatusEnum.GRADED;
             break;
           case QuestionTypeEnum.FILL:
-            numberOfFillQuestions++;
+            numberOfPendingAnswers++;
+            gradingStatus = GradingStatusEnum.UNGRADED;
             point = 0;
             break;
         }
@@ -183,20 +197,27 @@ export class SubmissionService {
       }),
     );
 
-    const percentage =
-      (gainedPointChoiceQuestions / totalPointChoiceQuestions) * 100;
+    const percentage = (gainedPointQuestions / totalPointQuestions) * 100;
     const passed = percentage >= exercise.min_passing_percentage;
     const status =
-      numberOfFillQuestions > 0 ? 'pending' : passed ? 'passed' : 'failed';
+      numberOfPendingAnswers > 0
+        ? SubmissionStatusEnum.PENDING
+        : passed
+          ? SubmissionStatusEnum.PASS
+          : SubmissionStatusEnum.FAIL;
 
     return {
-      numberOfChoiceQuestions,
-      numberOfFillQuestions,
-      totalPointChoiceQuestions,
-      numberOfCorrectChoiceAnswers,
-      numberOfIncorrectChoiceAnswers,
-      gainedPointChoiceQuestions,
+      progressExerciseId,
+      tryCount: progressExercise.tryCount,
+      totalQuestions,
+      numberOfCorrectAnswers,
+      numberOfIncorrectAnswers,
+      numberOfPendingAnswers,
+      totalPointQuestions,
+      gainedPointQuestions,
+      percentage,
       status,
+      date: format(progressExercise.createdAt, 'MM-dd-yyyy HH:mm:ss'),
     };
   }
 

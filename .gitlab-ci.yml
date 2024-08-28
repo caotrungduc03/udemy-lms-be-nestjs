@@ -41,7 +41,7 @@ deploy:
     - docker login $REGISTRY_URL -u $REGISTRY_USER -p $REGISTRY_PASS
   script:
     - docker pull $IMAGE_VERSION
-    - sudo su $USER_PROJECT -c "pwd; ls -l; docker rm -f $CI_PROJECT_NAME; docker run --name $CI_PROJECT_NAME --env-file $ENV_FILE_PATH -dp $BE_PORT $IMAGE_VERSION"
+    - sudo su $USER_PROJECT -c "docker rm -f $CI_PROJECT_NAME; docker run --name $CI_PROJECT_NAME --env-file $ENV_FILE_PATH -dp $BE_PORT $IMAGE_VERSION"
   after_script:
     - docker logout $REGISTRY_URL
   tags:

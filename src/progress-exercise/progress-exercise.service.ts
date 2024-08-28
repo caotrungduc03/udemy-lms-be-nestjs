@@ -82,11 +82,9 @@ export class ProgressExerciseService extends BaseService<ProgressExerciseEntity>
     }
 
     return this.store({
-      ...exercise,
-      ...createProgressExerciseDto,
+      progressId,
+      exerciseId,
       tryCount: currentTryCount + 1,
-      progress,
-      exercise,
     });
   }
 }

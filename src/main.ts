@@ -1,15 +1,16 @@
 import { ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './utils/allExceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const httpAdapterHost: HttpAdapterHost = app.get(HttpAdapterHost);
-
+  app.use(morgan('tiny'));
   app.enableCors({
     origin: '*',
-    methods: 'GET,POST,PUT,PATCH,DELETE',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });

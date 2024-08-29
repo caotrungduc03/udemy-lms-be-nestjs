@@ -18,8 +18,9 @@ export class OrderService {
     private readonly progressService: ProgressService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto, userId: number): Promise<any> {
+  async create(createOrderDto: CreateOrderDto, user: any): Promise<any> {
     const { courseIds } = createOrderDto;
+    const { userId, email } = user;
     const [courses, existingProgress] = await Promise.all([
       Promise.all(
         courseIds.map((courseId) => this.courseService.findById(courseId)),
@@ -38,6 +39,7 @@ export class OrderService {
     const orderData = {
       ...createOrderDto,
       client_id: userId,
+      client_email: email,
       items: courses.map((course) => ({
         course_id: course.id,
         author_id: course.authorId,

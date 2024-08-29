@@ -13,10 +13,7 @@ export class OrderController {
     @Body() createOrderDto: CreateOrderDto,
   ) {
     const userReq = request['user'];
-    const order = await this.orderService.create(
-      createOrderDto,
-      userReq.userId,
-    );
+    const order = await this.orderService.create(createOrderDto, userReq);
     return new CustomResponse(HttpStatus.OK, 'Order created');
   }
 }

@@ -8,10 +8,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { CreateLessonDto, LessonDto, UpdateLessonDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
+import { Pagination } from 'src/utils/pagination';
+import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { LessonService } from './lesson.service';
@@ -19,6 +22,21 @@ import { LessonService } from './lesson.service';
 @Controller('lessons')
 export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
+
+  @Get('/')
+  @Public()
+  async find(@Query() query: Object) {
+    const [page, limit, total, lessons] = await this.lessonService.query(query);
+
+    const results: Pagination<LessonDto> = {
+      page,
+      limit,
+      total,
+      items: LessonDto.plainToInstance(lessons),
+    };
+
+    return new CustomResponse(HttpStatus.OK, 'Success', results);
+  }
 
   @Get('/:id')
   async findById(@Param('id', ParseIntPipe) id: number) {

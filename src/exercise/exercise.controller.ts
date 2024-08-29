@@ -8,11 +8,14 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ExerciseDto, UpdateExerciseDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
+import { Pagination } from 'src/utils/pagination';
+import { Public } from 'src/utils/public.decorator';
 import { RoleEnum } from 'src/utils/role.enum';
 import { Roles } from 'src/utils/roles.decorator';
 import { CreateExerciseDto } from './../dtos/exercise/createExercise.dto';
@@ -21,6 +24,22 @@ import { ExerciseService } from './exercise.service';
 @Controller('exercises')
 export class ExerciseController {
   constructor(private readonly exerciseService: ExerciseService) {}
+
+  @Get('/')
+  @Public()
+  async find(@Query() query: Object) {
+    const [page, limit, total, exercises] =
+      await this.exerciseService.query(query);
+
+    const results: Pagination<ExerciseDto> = {
+      page,
+      limit,
+      total,
+      items: ExerciseDto.plainToInstance(exercises),
+    };
+
+    return new CustomResponse(HttpStatus.OK, 'Success', results);
+  }
 
   @Get('/:id')
   async findById(@Param('id') id: number) {

@@ -78,6 +78,9 @@ export class ProgressService extends BaseService<ProgressEntity> {
     if (!progress) {
       throw new BadRequestException('Progress not found');
     }
+    if (!progress.status) {
+      throw new ForbiddenException('Progress is not active');
+    }
 
     const progressDto = ProgressDto.plainToInstance(progress);
     progressDto.progressLessonIds = progress.progressLessons.map(
@@ -107,6 +110,9 @@ export class ProgressService extends BaseService<ProgressEntity> {
       throw new ForbiddenException(
         'You are not allowed to perform this action',
       );
+    }
+    if (!progress.status) {
+      throw new ForbiddenException('Progress is not active');
     }
 
     return progress;

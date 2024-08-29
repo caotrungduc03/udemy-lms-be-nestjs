@@ -4,6 +4,9 @@ import { CourseDto } from '../course/course.dto';
 import { UserDto } from '../user/user.dto';
 
 export class ProgressDto extends BaseDto {
+  @Expose()
+  status: boolean;
+
   @Exclude()
   userId: number;
 

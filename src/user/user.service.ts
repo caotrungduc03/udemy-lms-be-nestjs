@@ -160,6 +160,10 @@ export class UserService extends BaseService<UserEntity> {
   async updateStatus(id: number): Promise<UserEntity> {
     const user = await this.findById(id);
 
+    if (user.email === process.env.ADMIN_EMAIL) {
+      throw new BadRequestException('You cannot disable admin account');
+    }
+
     return this.store({
       ...user,
       status: !user.status,

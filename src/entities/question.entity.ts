@@ -1,12 +1,8 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
+import { QuestionTypeEnum } from 'src/enums';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { ExerciseEntity } from './exercise.entity';
 import { ProgressExerciseQuestionEntity } from './progressExerciseQuestion.entity';
-
-export enum QuestionTypeEnum {
-  CHOICE = 'CHOICE',
-  FILL = 'FILL',
-}
 
 @Entity({
   name: 'questions',

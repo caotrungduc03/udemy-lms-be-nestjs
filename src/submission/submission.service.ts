@@ -9,13 +9,13 @@ import {
   ExerciseDto,
   getSubmissionsResponseDto,
   SubmissionDto,
-  SubmissionStatusEnum,
 } from 'src/dtos';
+import { QuestionEntity } from 'src/entities';
 import {
   GradingStatusEnum,
-  QuestionEntity,
   QuestionTypeEnum,
-} from 'src/entities';
+  SubmissionStatusEnum,
+} from 'src/enums';
 import { ProgressExerciseQuestionService } from 'src/progress-exercise-question/progress-exercise-question.service';
 import { ProgressExerciseService } from 'src/progress-exercise/progress-exercise.service';
 import { ProgressService } from 'src/progress/progress.service';
@@ -167,7 +167,8 @@ export class SubmissionService {
         let point = 0;
 
         switch (question.questionType) {
-          case QuestionTypeEnum.CHOICE:
+          case QuestionTypeEnum.MULTIPLE_CHOICE:
+          case QuestionTypeEnum.SINGLE_CHOICE:
             totalPointQuestions += question.maxPoint;
 
             point = this.calculateChoicePoints(question, answer.answers);
@@ -180,7 +181,7 @@ export class SubmissionService {
             gainedPointQuestions += point;
             gradingStatus = GradingStatusEnum.GRADED;
             break;
-          case QuestionTypeEnum.FILL:
+          case QuestionTypeEnum.SHORT_ANSWER:
             numberOfPendingAnswers++;
             gradingStatus = GradingStatusEnum.UNGRADED;
             point = 0;

@@ -10,11 +10,11 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { Roles } from 'src/decorators';
 import { CreateProgressDto, ProgressDto } from 'src/dtos';
+import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
-import { RoleEnum } from 'src/utils/role.enum';
-import { Roles } from 'src/utils/roles.decorator';
 import { ProgressService } from './progress.service';
 
 @Controller('progress')

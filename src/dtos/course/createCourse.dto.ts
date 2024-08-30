@@ -1,11 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsEmpty, IsEnum, IsNotEmpty, Min, MinLength } from 'class-validator';
 import { BaseRequestDto } from 'src/common/baseRequest.dto';
-
-export enum PriceTypeEnum {
-  FREE = 'free',
-  PAID = 'paid',
-}
+import { PriceTypeEnum } from 'src/enums';
 
 export class CreateCourseDto extends BaseRequestDto {
   @IsNotEmpty()

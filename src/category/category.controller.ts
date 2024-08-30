@@ -9,13 +9,12 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { Public, Roles } from 'src/decorators';
 import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from 'src/dtos';
 import { CategoryEntity } from 'src/entities';
+import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
-import { Public } from 'src/utils/public.decorator';
-import { RoleEnum } from 'src/utils/role.enum';
-import { Roles } from 'src/utils/roles.decorator';
 import { CategoryService } from './category.service';
 
 @Controller('categories')

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { RoleEntity, UserEntity } from 'src/entities';
+import { RoleEnum } from 'src/enums';
 import { RoleService } from 'src/role/role.service';
 import { UserService } from 'src/user/user.service';
 import { encodePassword } from 'src/utils/bcrypt';
-import { RoleEnum } from 'src/utils/role.enum';
 
 @Injectable()
 export class DatabaseSeederService {

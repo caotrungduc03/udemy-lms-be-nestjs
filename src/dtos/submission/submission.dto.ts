@@ -1,8 +1,4 @@
-export enum SubmissionStatusEnum {
-  PENDING = 'pending',
-  PASS = 'pass',
-  FAIL = 'fail',
-}
+import { SubmissionStatusEnum } from 'src/enums';
 
 export class SubmissionDto {
   progressExerciseId: number;

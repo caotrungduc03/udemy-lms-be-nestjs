@@ -1,5 +1,6 @@
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { Public } from 'src/decorators';
 import {
   LoginRequestDto,
   LoginResponseDto,
@@ -9,7 +10,6 @@ import {
 import { UserEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { CustomResponse } from 'src/utils/customResponse';
-import { Public } from 'src/utils/public.decorator';
 import { AuthService } from './auth.service';
 
 @Controller('auth')

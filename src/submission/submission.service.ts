@@ -58,8 +58,9 @@ export class SubmissionService {
       ],
     });
 
-    const submissions: SubmissionDto[] = progressExercises.map(
-      (progressExercise) => {
+    const submissions: SubmissionDto[] = progressExercises
+      .sort((a, b) => b.id - a.id)
+      .map((progressExercise) => {
         const { progressExercisesQuestions } = progressExercise;
         let totalQuestions = 0;
         let numberOfCorrectAnswers = 0;
@@ -81,7 +82,10 @@ export class SubmissionService {
           totalQuestions += 1;
         });
 
-        const percentage = (gainedPointQuestions / totalPointQuestions) * 100;
+        const percentage =
+          totalPointQuestions > 0
+            ? (gainedPointQuestions / totalPointQuestions) * 100
+            : 0;
         const passed = percentage >= exercise.min_passing_percentage;
         const status =
           numberOfPendingAnswers > 0
@@ -103,8 +107,7 @@ export class SubmissionService {
           status,
           date: format(progressExercise.createdAt, 'MM-dd-yyyy HH:mm:ss'),
         };
-      },
-    );
+      });
 
     return {
       exercise: ExerciseDto.plainToInstance(exercise),

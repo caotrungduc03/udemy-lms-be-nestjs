@@ -12,12 +12,11 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { Public, Roles } from 'src/decorators';
 import { ExerciseDto, UpdateExerciseDto } from 'src/dtos';
+import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
-import { Public } from 'src/utils/public.decorator';
-import { RoleEnum } from 'src/utils/role.enum';
-import { Roles } from 'src/utils/roles.decorator';
 import { CreateExerciseDto } from './../dtos/exercise/createExercise.dto';
 import { ExerciseService } from './exercise.service';
 

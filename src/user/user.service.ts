@@ -90,6 +90,12 @@ export class UserService extends BaseService<UserEntity> {
     const user = await this.findById(id);
 
     if (updateData.roleId !== user.roleId) {
+      if (user.email === process.env.ADMIN_EMAIL) {
+        throw new BadRequestException(
+          'You cannot change role of admin account',
+        );
+      }
+
       const role = await this.roleService.findById(updateData.roleId);
       user.role = role;
     }
@@ -102,6 +108,10 @@ export class UserService extends BaseService<UserEntity> {
 
   async deleteById(id: number): Promise<UserEntity> {
     const user = await this.findById(id);
+
+    if (user.email === process.env.ADMIN_EMAIL) {
+      throw new BadRequestException('You cannot delete admin account');
+    }
 
     await this.delete(id);
 

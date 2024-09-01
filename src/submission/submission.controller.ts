@@ -8,9 +8,9 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
+import { User } from 'src/decorators';
 import { CreateSubmission } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
-import { User } from 'src/utils/user.decorator';
 import { SubmissionService } from './submission.service';
 
 @Controller('submissions')

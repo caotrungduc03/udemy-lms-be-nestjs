@@ -17,14 +17,13 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Public, Roles } from 'src/decorators';
 import { CourseDto, UpdateCourseDto } from 'src/dtos';
 import { CreateCourseDto } from 'src/dtos/course/createCourse.dto';
+import { RoleEnum } from 'src/enums';
 import { CustomParseFilePipe } from 'src/utils/customParseFile.pipe';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
-import { Public } from 'src/utils/public.decorator';
-import { RoleEnum } from 'src/utils/role.enum';
-import { Roles } from 'src/utils/roles.decorator';
 import { CourseService } from './course.service';
 
 @Controller('courses')

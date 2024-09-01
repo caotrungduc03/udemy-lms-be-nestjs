@@ -10,12 +10,12 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { Roles } from 'src/decorators';
 import { CreateRoleDto, RoleDto, UpdateRoleDto } from 'src/dtos';
 import { RoleEntity } from 'src/entities';
+import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
-import { RoleEnum } from 'src/utils/role.enum';
-import { Roles } from 'src/utils/roles.decorator';
 import { RoleService } from './role.service';
 
 @Controller('roles')

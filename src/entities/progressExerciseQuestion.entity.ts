@@ -1,12 +1,8 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
+import { GradingStatusEnum } from 'src/enums';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { ProgressExerciseEntity } from './progressExercise.entity';
 import { QuestionEntity } from './question.entity';
-
-export enum GradingStatusEnum {
-  UNGRADED = 'ungraded',
-  GRADED = 'graded',
-}
 
 @Entity({
   name: 'progress_exercises_questions',

@@ -7,10 +7,10 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { RoleEnum } from 'src/enums';
 import { UserService } from 'src/user/user.service';
-import { IS_PUBLIC_KEY } from '../utils/public.decorator';
-import { RoleEnum } from '../utils/role.enum';
-import { ROLES_KEY } from '../utils/roles.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { ROLES_KEY } from '../decorators/roles.decorator';
 
 export type JwtPayload = {
   userId: number;

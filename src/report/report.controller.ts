@@ -1,7 +1,7 @@
 import { Controller, Get, HttpStatus, Query, Req } from '@nestjs/common';
+import { Roles } from 'src/decorators';
+import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
-import { RoleEnum } from 'src/utils/role.enum';
-import { Roles } from 'src/utils/roles.decorator';
 import { ReportService } from './report.service';
 
 @Controller('reports')

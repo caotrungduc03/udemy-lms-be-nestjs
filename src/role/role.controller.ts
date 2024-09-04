@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { Roles } from 'src/decorators';
 import { CreateRoleDto, RoleDto, UpdateRoleDto } from 'src/dtos';
-import { RoleEntity } from 'src/entities';
 import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
@@ -40,7 +39,7 @@ export class RoleController {
   @Get('/:id')
   @Roles(RoleEnum.ADMIN)
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const role: RoleEntity = await this.roleService.findById(id);
+    const role = await this.roleService.findById(id);
 
     return new CustomResponse(
       HttpStatus.OK,
@@ -52,7 +51,9 @@ export class RoleController {
   @Post('/')
   @Roles(RoleEnum.ADMIN)
   async create(@Body() createRoleDto: CreateRoleDto) {
-    const role: RoleEntity = await this.roleService.create(createRoleDto);
+    const role = await this.roleService.create(
+      CreateRoleDto.plainToClass(createRoleDto),
+    );
 
     return new CustomResponse(
       HttpStatus.CREATED,
@@ -67,9 +68,9 @@ export class RoleController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateRoleDto: UpdateRoleDto,
   ) {
-    const role: RoleEntity = await this.roleService.updateById(
+    const role = await this.roleService.updateById(
       id,
-      updateRoleDto,
+      UpdateRoleDto.plainToClass(updateRoleDto),
     );
 
     return new CustomResponse(

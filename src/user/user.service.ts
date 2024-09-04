@@ -12,6 +12,7 @@ import {
   UpdateUserDto,
 } from 'src/dtos';
 import { UserEntity } from 'src/entities';
+import { RoleEnum } from 'src/enums';
 import { RoleService } from 'src/role/role.service';
 import { encodePassword } from 'src/utils/bcrypt';
 import { FindOptions } from 'src/utils/options';
@@ -65,7 +66,7 @@ export class UserService extends BaseService<UserEntity> {
     }
 
     if (!createUserDto['roleId']) {
-      const defaultRole = await this.roleService.findByName('STUDENT');
+      const defaultRole = await this.roleService.findByName(RoleEnum.STUDENT);
       newUser.role = defaultRole;
     }
 
@@ -164,7 +165,7 @@ export class UserService extends BaseService<UserEntity> {
   async checkAdminRole(id: number): Promise<boolean> {
     const user = await this.findById(id, { relations: ['role'] });
 
-    return user.role?.roleName === 'ADMIN';
+    return user.role.roleName === RoleEnum.ADMIN;
   }
 
   async updateStatus(id: number): Promise<UserEntity> {

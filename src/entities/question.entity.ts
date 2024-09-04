@@ -17,6 +17,7 @@ export class QuestionEntity extends CustomBaseEntity {
     name: 'question_type',
     type: 'enum',
     enum: QuestionTypeEnum,
+    default: QuestionTypeEnum.SINGLE_CHOICE,
   })
   questionType: QuestionTypeEnum;
 

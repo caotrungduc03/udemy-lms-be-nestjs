@@ -1,4 +1,4 @@
 export enum GradingStatusEnum {
-  UNGRADED = 'ungraded',
-  GRADED = 'graded',
+  UNGRADED = 'UNGRADED',
+  GRADED = 'GRADED',
 }

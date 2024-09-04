@@ -23,6 +23,7 @@ export class ProgressExerciseQuestionEntity extends CustomBaseEntity {
     name: 'grading_status',
     type: 'enum',
     enum: GradingStatusEnum,
+    default: GradingStatusEnum.UNGRADED,
   })
   gradingStatus: GradingStatusEnum;
 

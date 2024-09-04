@@ -1,4 +1,5 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
+import { PriceTypeEnum } from 'src/enums';
 import {
   BeforeRemove,
   Column,
@@ -36,9 +37,11 @@ export class CourseEntity extends CustomBaseEntity {
 
   @Column({
     name: 'price_type',
-    enum: ['free', 'paid'],
+    type: 'enum',
+    enum: PriceTypeEnum,
+    default: PriceTypeEnum.FREE,
   })
-  priceType: string;
+  priceType: PriceTypeEnum;
 
   @Column({
     type: 'float',

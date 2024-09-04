@@ -70,9 +70,14 @@ export class SubmissionService {
         let gainedPointQuestions = 0;
 
         progressExercisesQuestions.forEach((progressExercisesQuestion) => {
-          if (progressExercisesQuestion.gradingStatus === 'ungraded') {
+          if (
+            progressExercisesQuestion.gradingStatus ===
+            GradingStatusEnum.UNGRADED
+          ) {
             numberOfPendingAnswers += 1;
-          } else if (progressExercisesQuestion.gradingStatus === 'graded') {
+          } else if (
+            progressExercisesQuestion.gradingStatus === GradingStatusEnum.GRADED
+          ) {
             numberOfCorrectAnswers += 1;
             totalPointQuestions += progressExercisesQuestion.question.maxPoint;
             gainedPointQuestions += progressExercisesQuestion.point;

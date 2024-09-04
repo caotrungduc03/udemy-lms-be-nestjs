@@ -1,4 +1,4 @@
 export enum PriceTypeEnum {
-  FREE = 'free',
-  PAID = 'paid',
+  FREE = 'FREE',
+  PAID = 'PAID',
 }

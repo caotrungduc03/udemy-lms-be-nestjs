@@ -10,7 +10,6 @@ import { ProgressExerciseQuestionEntity } from './progressExerciseQuestion.entit
 export class QuestionEntity extends CustomBaseEntity {
   @Column({
     name: 'question_title',
-    nullable: false,
   })
   questionTitle: string;
 
@@ -24,7 +23,6 @@ export class QuestionEntity extends CustomBaseEntity {
   @Column({
     type: 'text',
     array: true,
-    nullable: false,
   })
   answers: string[];
 
@@ -32,20 +30,17 @@ export class QuestionEntity extends CustomBaseEntity {
     name: 'correct_answers',
     type: 'text',
     array: true,
-    nullable: false,
   })
   correctAnswers: string[];
 
   @Column({
     type: 'float',
     name: 'max_point',
-    nullable: false,
   })
   maxPoint: number;
 
   @Column({
     name: 'exercise_id',
-    nullable: false,
   })
   exerciseId: number;
 

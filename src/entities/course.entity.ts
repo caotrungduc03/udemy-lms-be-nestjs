@@ -19,12 +19,12 @@ import { UserEntity } from './user.entity';
 export class CourseEntity extends CustomBaseEntity {
   @Column({
     name: 'course_name',
-    nullable: false,
   })
   courseName: string;
 
   @Column({
     type: 'text',
+    nullable: true,
   })
   description: string;
 
@@ -37,19 +37,16 @@ export class CourseEntity extends CustomBaseEntity {
   @Column({
     name: 'price_type',
     enum: ['free', 'paid'],
-    nullable: false,
   })
   priceType: string;
 
   @Column({
     type: 'float',
-    nullable: false,
   })
   price: number;
 
   @Column({
     name: 'language',
-    nullable: false,
   })
   language: string;
 
@@ -62,7 +59,6 @@ export class CourseEntity extends CustomBaseEntity {
 
   @Column({
     name: 'author_id',
-    nullable: false,
   })
   authorId: number;
 
@@ -74,7 +70,6 @@ export class CourseEntity extends CustomBaseEntity {
 
   @Column({
     name: 'category_id',
-    nullable: false,
   })
   categoryId: number;
 

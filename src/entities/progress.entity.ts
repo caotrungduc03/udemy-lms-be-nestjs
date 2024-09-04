@@ -23,7 +23,6 @@ export class ProgressEntity extends CustomBaseEntity {
 
   @Column({
     name: 'user_id',
-    nullable: false,
   })
   userId: number;
 
@@ -35,7 +34,6 @@ export class ProgressEntity extends CustomBaseEntity {
 
   @Column({
     name: 'course_id',
-    nullable: false,
   })
   courseId: number;
 

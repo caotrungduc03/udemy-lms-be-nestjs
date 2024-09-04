@@ -8,18 +8,15 @@ import { RoleEntity } from './role.entity';
 export class UserEntity extends CustomBaseEntity {
   @Column({
     name: 'full_name',
-    nullable: false,
   })
   fullName: string;
 
   @Column({
     unique: true,
-    nullable: false,
   })
   email: string;
 
   @Column({
-    nullable: false,
     select: false,
   })
   password: string;
@@ -49,7 +46,6 @@ export class UserEntity extends CustomBaseEntity {
 
   @Column({
     name: 'role_id',
-    nullable: false,
   })
   roleId: number;
 

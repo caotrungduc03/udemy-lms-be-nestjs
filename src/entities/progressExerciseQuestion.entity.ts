@@ -11,13 +11,11 @@ export class ProgressExerciseQuestionEntity extends CustomBaseEntity {
   @Column({
     type: 'text',
     array: true,
-    nullable: false,
   })
   answers: string[];
 
   @Column({
     type: 'float',
-    nullable: false,
   })
   point: number;
 
@@ -30,7 +28,6 @@ export class ProgressExerciseQuestionEntity extends CustomBaseEntity {
 
   @Column({
     name: 'progress_exercise_id',
-    nullable: false,
   })
   progressExerciseId: number;
 
@@ -45,7 +42,6 @@ export class ProgressExerciseQuestionEntity extends CustomBaseEntity {
 
   @Column({
     name: 'question_id',
-    nullable: false,
   })
   questionId: number;
 

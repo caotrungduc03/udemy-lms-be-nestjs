@@ -8,14 +8,12 @@ import { CourseEntity } from './course.entity';
 export class CategoryEntity extends CustomBaseEntity {
   @Column({
     name: 'category_name',
-    nullable: false,
     unique: true,
   })
   categoryName: string;
 
   @Column({
     name: 'parent_id',
-    nullable: true,
     default: null,
   })
   parentId: number | null;

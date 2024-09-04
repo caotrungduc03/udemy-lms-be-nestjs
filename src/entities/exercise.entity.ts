@@ -15,18 +15,17 @@ import { QuestionEntity } from './question.entity';
 export class ExerciseEntity extends CustomBaseEntity {
   @Column({
     name: 'exercise_name',
-    nullable: false,
   })
   exerciseName: string;
 
   @Column({
     type: 'text',
+    nullable: true,
   })
   description: string;
 
   @Column({
     name: 'exercise_type',
-    nullable: false,
   })
   exerciseType: string;
 
@@ -35,25 +34,23 @@ export class ExerciseEntity extends CustomBaseEntity {
 
   @Column({
     type: 'timestamptz',
+    nullable: true,
   })
   deadline: Date;
 
   @Column({
     name: 'min_passing_percentage',
     type: 'float',
-    nullable: false,
   })
-  min_passing_percentage: number;
+  minPassingPercentage: number;
 
   @Column({
     name: 'max_tries',
-    nullable: false,
   })
-  max_tries: number;
+  maxTries: number;
 
   @Column({
     name: 'course_id',
-    nullable: false,
   })
   courseId: number;
 

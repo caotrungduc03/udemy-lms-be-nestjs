@@ -77,7 +77,7 @@ export class ProgressExerciseService extends BaseService<ProgressExerciseEntity>
         exerciseId,
       },
     });
-    if (currentTryCount >= exercise.max_tries) {
+    if (currentTryCount >= exercise.maxTries) {
       throw new BadRequestException('Max tries reached');
     }
 

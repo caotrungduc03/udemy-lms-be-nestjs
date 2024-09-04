@@ -157,7 +157,7 @@ export class UserService extends BaseService<UserEntity> {
 
     return this.store({
       ...user,
-      ...updateProfileDto,
+      ...updateData,
     });
   }
 

@@ -10,7 +10,7 @@ async function bootstrap() {
   app.use(morgan('tiny'));
   app.enableCors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });

@@ -4,11 +4,18 @@ import { CourseService } from 'src/course/course.service';
 import { RabbitmqService } from 'src/rabbitmq/rabbitmq.service';
 import { UserService } from 'src/user/user.service';
 
-interface Query {
+type Query = {
   userId: number;
-  start_time?: string;
-  end_time?: string;
-}
+  startDate?: string;
+  endDate?: string;
+};
+
+type ReportData = {
+  author_id?: number;
+  course_id?: number[];
+  start_date?: string;
+  end_date?: string;
+};
 
 @Injectable()
 export class ReportService {
@@ -20,23 +27,31 @@ export class ReportService {
 
   async getReport(query: Query): Promise<any> {
     const { userId } = query;
-    let start_date = format(query['start_date'] || new Date(), 'yyyy-MM-dd');
-    let end_date = format(query['end_date'] || new Date(), 'yyyy-MM-dd');
+    let start_date = format(query.startDate || new Date(), 'yyyy-MM-dd');
+    let end_date = format(query.endDate || new Date(), 'yyyy-MM-dd');
 
-    const whereObj: any = {};
     const hasAdminRole = await this.userService.checkAdminRole(userId);
 
-    if (!hasAdminRole) {
-      whereObj.authorId = userId;
+    let reportData: ReportData = {};
+    if (hasAdminRole) {
+      const courseIds = await this.courseService.findCourseIds({});
+      Object.assign(reportData, {
+        start_date,
+        end_date,
+        course_id: courseIds,
+      });
+    } else {
+      const courseIds = await this.courseService.findCourseIds({
+        authorId: userId,
+      });
+      Object.assign(reportData, {
+        author_id: userId,
+        start_date,
+        end_date,
+        course_id: courseIds,
+      });
     }
-    const courseIds = await this.courseService.findCourseIds(whereObj);
 
-    const reportData = {
-      ...whereObj,
-      start_date,
-      end_date,
-      course_id: courseIds,
-    };
     const response = await this.rabbitmqService.sendMessage(
       'report',
       reportData,

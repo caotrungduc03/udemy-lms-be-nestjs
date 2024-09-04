@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
 import { CreateRoleDto, UpdateRoleDto } from 'src/dtos';
 import { RoleEntity } from 'src/entities';
+import { RoleEnum } from 'src/enums';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -42,6 +43,9 @@ export class RoleService extends BaseService<RoleEntity> {
     updateRoleDto: UpdateRoleDto,
   ): Promise<RoleEntity> {
     const role = await this.findById(id);
+    if (Object.values(RoleEnum).includes(role.roleName as RoleEnum)) {
+      throw new BadRequestException('You cannot update this role');
+    }
 
     return this.store({
       ...role,
@@ -51,6 +55,9 @@ export class RoleService extends BaseService<RoleEntity> {
 
   async deleteById(id: number): Promise<RoleEntity> {
     const role = await this.findById(id);
+    if (Object.values(RoleEnum).includes(role.roleName as RoleEnum)) {
+      throw new BadRequestException('You cannot delete this role');
+    }
 
     await this.delete(id);
 

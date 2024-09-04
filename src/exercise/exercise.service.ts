@@ -84,8 +84,8 @@ export class ExerciseService extends BaseService<ExerciseEntity> {
       'exerciseType',
       'duration',
       'deadline',
-      'min_passing_percentage',
-      'max_tries',
+      'minPassingPercentage',
+      'maxTries',
     ]);
 
     if (isBefore(deadline, new Date())) {

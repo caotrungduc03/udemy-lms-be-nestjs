@@ -16,10 +16,10 @@ export class CreateExerciseDto {
   deadline: string;
 
   @IsNotEmpty()
-  min_passing_percentage: number;
+  minPassingPercentage: number;
 
   @IsNotEmpty()
-  max_tries: number;
+  maxTries: number;
 
   @IsNotEmpty()
   courseId: number;

@@ -6,29 +6,25 @@ import { CourseEntity } from './course.entity';
 export class LessonEntity extends CustomBaseEntity {
   @Column({
     name: 'lesson_name',
-    nullable: false,
   })
   lessonName: string;
 
   @Column({
     type: 'text',
+    nullable: true,
   })
   description: string;
 
-  @Column({
-    nullable: false,
-  })
+  @Column({})
   duration: number;
 
   @Column({
     type: 'text',
-    nullable: false,
   })
   content: string;
 
   @Column({
     name: 'course_id',
-    nullable: false,
   })
   courseId: number;
 

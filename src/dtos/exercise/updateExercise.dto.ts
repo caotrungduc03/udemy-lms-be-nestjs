@@ -16,8 +16,8 @@ export class UpdateExerciseDto {
   deadline: string;
 
   @IsNotEmpty()
-  min_passing_percentage: number;
+  minPassingPercentage: number;
 
   @IsNotEmpty()
-  max_tries: number;
+  maxTries: number;
 }

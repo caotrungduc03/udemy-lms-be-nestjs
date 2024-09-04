@@ -18,13 +18,11 @@ import { ProgressExerciseQuestionEntity } from './progressExerciseQuestion.entit
 export class ProgressExerciseEntity extends CustomBaseEntity {
   @Column({
     name: 'try_count',
-    nullable: false,
   })
   tryCount: number;
 
   @Column({
     name: 'progress_id',
-    nullable: false,
   })
   progressId: number;
 
@@ -39,7 +37,6 @@ export class ProgressExerciseEntity extends CustomBaseEntity {
 
   @Column({
     name: 'exercise_id',
-    nullable: false,
   })
   exerciseId: number;
 

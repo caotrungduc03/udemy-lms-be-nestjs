@@ -86,7 +86,7 @@ export class SubmissionService {
           totalPointQuestions > 0
             ? (gainedPointQuestions / totalPointQuestions) * 100
             : 0;
-        const passed = percentage >= exercise.min_passing_percentage;
+        const passed = percentage >= exercise.minPassingPercentage;
         const status =
           numberOfPendingAnswers > 0
             ? SubmissionStatusEnum.PENDING
@@ -202,7 +202,7 @@ export class SubmissionService {
     );
 
     const percentage = (gainedPointQuestions / totalPointQuestions) * 100;
-    const passed = percentage >= exercise.min_passing_percentage;
+    const passed = percentage >= exercise.minPassingPercentage;
     const status =
       numberOfPendingAnswers > 0
         ? SubmissionStatusEnum.PENDING

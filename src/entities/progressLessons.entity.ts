@@ -10,7 +10,6 @@ import { ProgressEntity } from './progress.entity';
 export class ProgressLessonsEntity extends CustomBaseEntity {
   @Column({
     name: 'progress_id',
-    nullable: false,
   })
   progressId: number;
 
@@ -25,7 +24,6 @@ export class ProgressLessonsEntity extends CustomBaseEntity {
 
   @Column({
     name: 'lesson_id',
-    nullable: false,
   })
   lessonId: number;
 

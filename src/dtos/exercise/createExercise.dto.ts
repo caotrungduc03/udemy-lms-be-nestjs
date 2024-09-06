@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, Max, Min } from 'class-validator';
 
 export class CreateExerciseDto {
   @IsNotEmpty()
@@ -12,10 +12,11 @@ export class CreateExerciseDto {
   @IsNotEmpty()
   duration: number;
 
-  @IsNotEmpty()
   deadline: string;
 
   @IsNotEmpty()
+  @Min(0)
+  @Max(100)
   minPassingPercentage: number;
 
   @IsNotEmpty()

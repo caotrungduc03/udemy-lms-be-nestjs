@@ -1,6 +1,6 @@
 import { Body, Controller, HttpStatus, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { CreateProgressExerciseDto, ProgressExerciseDto } from 'src/dtos';
+import { CreateProgressExerciseRequestDto } from 'src/dtos';
 import { CustomResponse } from 'src/utils/customResponse';
 import { ProgressExerciseService } from './progress-exercise.service';
 
@@ -13,18 +13,20 @@ export class ProgressExerciseController {
   @Post('/')
   async create(
     @Req() request: Request,
-    @Body() createProgressExerciseDto: CreateProgressExerciseDto,
+    @Body() createProgressExerciseRequestDto: CreateProgressExerciseRequestDto,
   ) {
     const userReq = request['user'];
-    const progressExercise = await this.progressExerciseService.create(
-      createProgressExerciseDto,
+    const result = await this.progressExerciseService.create(
+      CreateProgressExerciseRequestDto.plainToClass(
+        createProgressExerciseRequestDto,
+      ),
       userReq.userId,
     );
 
     return new CustomResponse(
       HttpStatus.CREATED,
       'Created a new progress exercise',
-      ProgressExerciseDto.plainToInstance(progressExercise),
+      result,
     );
   }
 }

@@ -14,9 +14,7 @@ export class CreateCourseDto extends BaseRequestDto {
   coverImage: string;
 
   @IsNotEmpty()
-  @IsEnum(PriceTypeEnum, {
-    message: 'Price type must be free or paid',
-  })
+  @IsEnum(PriceTypeEnum)
   priceType: string;
 
   @IsNotEmpty()

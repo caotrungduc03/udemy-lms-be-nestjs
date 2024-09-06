@@ -75,16 +75,16 @@ export class SubmissionService {
             GradingStatusEnum.UNGRADED
           ) {
             numberOfPendingAnswers += 1;
-          } else if (
-            progressExercisesQuestion.gradingStatus === GradingStatusEnum.GRADED
-          ) {
-            numberOfCorrectAnswers += 1;
-            totalPointQuestions += progressExercisesQuestion.question.maxPoint;
-            gainedPointQuestions += progressExercisesQuestion.point;
           } else {
-            numberOfIncorrectAnswers += 1;
+            if (progressExercisesQuestion.point > 0) {
+              numberOfCorrectAnswers += 1;
+              gainedPointQuestions += progressExercisesQuestion.point;
+            } else {
+              numberOfIncorrectAnswers += 1;
+            }
+            totalQuestions += 1;
+            totalPointQuestions += progressExercisesQuestion.question.maxPoint;
           }
-          totalQuestions += 1;
         });
 
         const percentage =

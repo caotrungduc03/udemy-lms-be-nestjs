@@ -11,8 +11,13 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Public, Roles } from 'src/decorators';
-import { CreateLessonDto, LessonDto, UpdateLessonDto } from 'src/dtos';
+import { Roles } from 'src/decorators';
+import {
+  CreateLessonDto,
+  findLessonsRequestDto,
+  LessonDto,
+  UpdateLessonDto,
+} from 'src/dtos';
 import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
@@ -23,8 +28,8 @@ export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
   @Get('/')
-  @Public()
-  async find(@Query() query: Object) {
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async find(@Query() query: findLessonsRequestDto) {
     const [page, limit, total, lessons] = await this.lessonService.query(query);
 
     const results: Pagination<LessonDto> = {

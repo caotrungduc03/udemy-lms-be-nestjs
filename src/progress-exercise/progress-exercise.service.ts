@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
-import { CreateProgressExerciseDto } from 'src/dtos';
+import {
+  CreateProgressExerciseRequestDto,
+  CreateProgressExerciseResponseDto,
+  QuestionDto,
+} from 'src/dtos';
 import { ProgressExerciseEntity } from 'src/entities';
 import { ExerciseService } from 'src/exercise/exercise.service';
 import { ProgressService } from 'src/progress/progress.service';
@@ -59,13 +63,15 @@ export class ProgressExerciseService extends BaseService<ProgressExerciseEntity>
   }
 
   async create(
-    createProgressExerciseDto: CreateProgressExerciseDto,
+    CreateProgressExerciseRequestDto: CreateProgressExerciseRequestDto,
     userId: number,
-  ): Promise<ProgressExerciseEntity> {
-    const { progressId, exerciseId } = createProgressExerciseDto;
+  ): Promise<CreateProgressExerciseResponseDto> {
+    const { progressId, exerciseId } = CreateProgressExerciseRequestDto;
     const [progress, exercise] = await Promise.all([
       this.progressService.findByIdAndVerifyUser(progressId, userId),
-      this.exerciseService.findById(exerciseId),
+      this.exerciseService.findById(exerciseId, {
+        relations: ['questions'],
+      }),
     ]);
     if (progress.courseId !== exercise.courseId) {
       throw new BadRequestException('Course does not match');
@@ -81,10 +87,18 @@ export class ProgressExerciseService extends BaseService<ProgressExerciseEntity>
       throw new BadRequestException('Max tries reached');
     }
 
-    return this.store({
+    const progressExercise = await this.store({
       progressId,
       exerciseId,
       tryCount: currentTryCount + 1,
     });
+
+    return {
+      id: progressExercise.id,
+      tryCount: progressExercise.tryCount,
+      questions: exercise.questions.map((question) =>
+        QuestionDto.plainToInstance(question),
+      ),
+    };
   }
 }

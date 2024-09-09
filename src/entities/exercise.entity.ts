@@ -1,4 +1,5 @@
 import { CustomBaseEntity } from 'src/common/customBase.entity';
+import { ExerciseTypeEnum } from 'src/enums';
 import {
   BeforeRemove,
   Column,
@@ -26,6 +27,8 @@ export class ExerciseEntity extends CustomBaseEntity {
 
   @Column({
     name: 'exercise_type',
+    type: 'enum',
+    enum: ExerciseTypeEnum,
   })
   exerciseType: string;
 

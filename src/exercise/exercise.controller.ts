@@ -12,12 +12,16 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Public, Roles } from 'src/decorators';
-import { ExerciseDto, UpdateExerciseDto } from 'src/dtos';
+import { Roles } from 'src/decorators';
+import {
+  CreateExerciseDto,
+  ExerciseDto,
+  FindExercisesRequestDto,
+  UpdateExerciseDto,
+} from 'src/dtos';
 import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
 import { Pagination } from 'src/utils/pagination';
-import { CreateExerciseDto } from './../dtos/exercise/createExercise.dto';
 import { ExerciseService } from './exercise.service';
 
 @Controller('exercises')
@@ -25,8 +29,8 @@ export class ExerciseController {
   constructor(private readonly exerciseService: ExerciseService) {}
 
   @Get('/')
-  @Public()
-  async find(@Query() query: Object) {
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async find(@Query() query: FindExercisesRequestDto) {
     const [page, limit, total, exercises] =
       await this.exerciseService.query(query);
 

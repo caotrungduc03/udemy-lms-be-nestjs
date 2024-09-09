@@ -22,6 +22,7 @@ export * from './progress-lessons/progressLessons.dto';
 export * from './progress/createProgress.dto';
 export * from './progress/progress.dto';
 export * from './question/createQuestion.dto';
+export * from './question/findQuestionsRequest.dto';
 export * from './question/question.dto';
 export * from './question/updateQuestion.dto';
 export * from './role/createRole.dto';

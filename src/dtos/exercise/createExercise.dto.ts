@@ -1,4 +1,12 @@
-import { IsNotEmpty, Max, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  Max,
+  Min,
+} from 'class-validator';
+import { ExerciseTypeEnum } from 'src/enums';
 
 export class CreateExerciseDto {
   @IsNotEmpty()
@@ -7,21 +15,22 @@ export class CreateExerciseDto {
   description: string;
 
   @IsNotEmpty()
+  @IsEnum(ExerciseTypeEnum)
   exerciseType: string;
 
-  @IsNotEmpty()
+  @IsPositive()
   duration: number;
 
   deadline: string;
 
-  @IsNotEmpty()
+  @IsNumber()
   @Min(0)
   @Max(100)
   minPassingPercentage: number;
 
-  @IsNotEmpty()
+  @IsNumber()
   maxTries: number;
 
-  @IsNotEmpty()
+  @IsNumber()
   courseId: number;
 }

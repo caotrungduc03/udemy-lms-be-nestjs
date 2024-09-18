@@ -1,24 +1,39 @@
-import { IsNotEmpty, Max, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  Max,
+  Min,
+} from 'class-validator';
+import { ExerciseTypeEnum } from 'src/enums';
 
 export class UpdateExerciseDto {
+  @IsOptional()
   @IsNotEmpty()
   exerciseName: string;
 
+  @IsOptional()
   @IsNotEmpty()
+  @IsEnum(ExerciseTypeEnum)
   exerciseType: string;
 
   description: string;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsPositive()
   duration: number;
 
   deadline: string;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsNumber()
   @Min(0)
   @Max(100)
   minPassingPercentage: number;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsNumber()
   maxTries: number;
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -19,17 +20,31 @@ export class SubmissionController {
 
   @Get('/')
   async getSubmissions(
-    @User() user: any,
+    @User('userId') userId: number,
     @Query('progressId', ParseIntPipe) progressId: number,
     @Query('exerciseId', ParseIntPipe) exerciseId: number,
   ) {
     const result = await this.submissionService.getSubmissions(
       progressId,
       exerciseId,
-      user.userId,
+      userId,
     );
 
     return new CustomResponse(HttpStatus.OK, 'Success', result);
+  }
+
+  @Get('/:progressExerciseId')
+  async getSubmissionDetail(
+    @User('userId') userId: number,
+    @Param('progressExerciseId') id: number,
+  ) {
+    const result = await this.submissionService.getSubmissionDetail(id, userId);
+
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Get progress exercise successfully',
+      result,
+    );
   }
 
   @Post('/')

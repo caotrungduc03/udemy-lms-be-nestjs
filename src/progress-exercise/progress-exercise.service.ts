@@ -49,8 +49,7 @@ export class ProgressExerciseService extends BaseService<ProgressExerciseEntity>
     options?: FindOptions,
   ): Promise<ProgressExerciseEntity> {
     const progressExercise = await this.findById(id, {
-      relations: ['progress'],
-      ...options,
+      relations: ['progress', ...options.relations],
     });
     const isCurrentUser = progressExercise.progress.userId === userId;
     if (!isCurrentUser) {

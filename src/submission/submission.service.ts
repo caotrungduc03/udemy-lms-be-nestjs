@@ -5,12 +5,18 @@ import {
 } from '@nestjs/common';
 import { format } from 'date-fns';
 import {
+  AnswerDetail,
   CreateSubmission,
   ExerciseDto,
+  GetSubmissionDetailResponseDto,
   getSubmissionsResponseDto,
   SubmissionDto,
 } from 'src/dtos';
-import { QuestionEntity } from 'src/entities';
+import {
+  ExerciseEntity,
+  ProgressExerciseEntity,
+  QuestionEntity,
+} from 'src/entities';
 import {
   GradingStatusEnum,
   QuestionTypeEnum,
@@ -28,37 +34,32 @@ export class SubmissionService {
     private readonly progressExerciseQuestionService: ProgressExerciseQuestionService,
   ) {}
 
-  async getSubmissions(
-    progressId: number,
-    exerciseId: number,
-    userId: number,
-  ): Promise<getSubmissionsResponseDto> {
-    const progress = await this.progressService.findByIdAndVerifyUser(
-      progressId,
-      userId,
-      {
-        relations: ['course', 'course.exercises'],
-      },
-    );
-    const exercise = progress.course.exercises.find(
-      (exercise) => exercise.id === exerciseId,
-    );
-    if (!exercise) {
-      throw new NotFoundException('Exercise not found');
+  private calculateChoicePoints(
+    question: QuestionEntity,
+    answers: string[],
+  ): number {
+    if (
+      question.correctAnswers.length === answers.length &&
+      question.correctAnswers.every((answer) => answers.includes(answer))
+    ) {
+      return question.maxPoint;
     }
 
-    const progressExercises = await this.progressExerciseService.findAll({
-      where: {
-        progressId,
-        exerciseId,
-      },
-      relations: [
-        'progressExercisesQuestions',
-        'progressExercisesQuestions.question',
-      ],
-    });
+    return 0;
+  }
 
-    const submissions: SubmissionDto[] = progressExercises
+  private calculateSubmission(
+    exercise: ExerciseEntity,
+    data: ProgressExerciseEntity | ProgressExerciseEntity[],
+  ): SubmissionDto[] {
+    let progressExercises = [];
+    if (Array.isArray(data)) {
+      progressExercises = [...data];
+    } else {
+      progressExercises = [data];
+    }
+
+    return progressExercises
       .sort((a, b) => b.id - a.id)
       .map((progressExercise) => {
         const { progressExercisesQuestions } = progressExercise;
@@ -113,10 +114,89 @@ export class SubmissionService {
           date: format(progressExercise.createdAt, 'MM-dd-yyyy HH:mm:ss'),
         };
       });
+  }
+
+  async getSubmissions(
+    progressId: number,
+    exerciseId: number,
+    userId: number,
+  ): Promise<getSubmissionsResponseDto> {
+    const progress = await this.progressService.findByIdAndVerifyUser(
+      progressId,
+      userId,
+      {
+        relations: ['course', 'course.exercises'],
+      },
+    );
+    const exercise = progress.course.exercises.find(
+      (exercise) => exercise.id === exerciseId,
+    );
+    if (!exercise) {
+      throw new NotFoundException('Exercise not found');
+    }
+
+    const progressExercises = await this.progressExerciseService.findAll({
+      where: {
+        progressId,
+        exerciseId,
+      },
+      relations: [
+        'progressExercisesQuestions',
+        'progressExercisesQuestions.question',
+      ],
+    });
+
+    const submissions = this.calculateSubmission(exercise, progressExercises);
 
     return {
       exercise: ExerciseDto.plainToInstance(exercise),
       submissions,
+    };
+  }
+
+  async getSubmissionDetail(
+    progressExerciseId: number,
+    userId: number,
+  ): Promise<GetSubmissionDetailResponseDto> {
+    const progressExercise =
+      await this.progressExerciseService.findByIdAndVerifyUser(
+        progressExerciseId,
+        userId,
+        {
+          relations: [
+            'exercise',
+            'progressExercisesQuestions',
+            'progressExercisesQuestions.question',
+          ],
+        },
+      );
+
+    const submissions = this.calculateSubmission(
+      progressExercise.exercise,
+      progressExercise,
+    );
+
+    const answerDetails: AnswerDetail[] =
+      progressExercise.progressExercisesQuestions.map(
+        (progressExercisesQuestion) => {
+          const { question, answers, point, gradingStatus } =
+            progressExercisesQuestion;
+          const { id, questionTitle, questionType, correctAnswers } = question;
+          return {
+            questionId: id,
+            questionTitle,
+            questionType,
+            correctAnswers,
+            answers,
+            point,
+            gradingStatus,
+          };
+        },
+      );
+
+    return {
+      submission: submissions[0],
+      answerDetails,
     };
   }
 
@@ -228,19 +308,5 @@ export class SubmissionService {
       status,
       date: format(progressExercise.createdAt, 'MM-dd-yyyy HH:mm:ss'),
     };
-  }
-
-  private calculateChoicePoints(
-    question: QuestionEntity,
-    answers: string[],
-  ): number {
-    if (
-      question.correctAnswers.length === answers.length &&
-      question.correctAnswers.every((answer) => answers.includes(answer))
-    ) {
-      return question.maxPoint;
-    }
-
-    return 0;
   }
 }

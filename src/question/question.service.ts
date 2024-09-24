@@ -49,17 +49,21 @@ export class QuestionService extends BaseService<QuestionEntity> {
   async create(
     createQuestionDto: CreateQuestionDto,
     userId: number,
-  ): Promise<QuestionEntity> {
-    const { exerciseId } = createQuestionDto;
+  ): Promise<QuestionEntity[]> {
+    const { exerciseId, questions } = createQuestionDto;
     const exercise = await this.exerciseService.findByIdAndVerifyAuthor(
       exerciseId,
       userId,
     );
 
-    return this.store({
-      ...createQuestionDto,
-      exercise,
-    });
+    return Promise.all(
+      questions.map((question) =>
+        this.store({
+          ...question,
+          exerciseId: exercise.id,
+        }),
+      ),
+    );
   }
 
   async updateById(

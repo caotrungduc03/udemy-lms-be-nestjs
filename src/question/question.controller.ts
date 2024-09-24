@@ -11,7 +11,7 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Roles } from 'src/decorators';
+import { Roles, User } from 'src/decorators';
 import {
   CreateQuestionDto,
   FindQuestionsRequestDto,
@@ -58,19 +58,18 @@ export class QuestionController {
   @Post('/')
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async create(
-    @Req() request: Request,
+    @User('userId') userId: number,
     @Body() createQuestionDto: CreateQuestionDto,
   ) {
-    const userReq = request['user'];
     const question = await this.questionService.create(
       createQuestionDto,
-      userReq.userId,
+      userId,
     );
 
     return new CustomResponse(
-      HttpStatus.OK,
+      HttpStatus.CREATED,
       'Success',
-      QuestionDto.plainToInstance(question),
+      QuestionDto.plainToInstance(question, ['admin']),
     );
   }
 

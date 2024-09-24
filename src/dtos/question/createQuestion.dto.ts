@@ -1,11 +1,17 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator';
 import { QuestionTypeEnum } from 'src/enums';
 
-export class CreateQuestionDto {
+export class QuestionRequestDto {
   @IsNotEmpty()
   questionTitle: string;
 
-  @IsNotEmpty()
   @IsEnum(QuestionTypeEnum)
   questionType: string;
 
@@ -15,6 +21,16 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   correctAnswers: string[];
 
-  @IsNotEmpty()
+  @IsNumber()
+  maxPoint: number;
+}
+
+export class CreateQuestionDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => QuestionRequestDto)
+  questions: QuestionRequestDto[];
+
+  @IsNumber()
   exerciseId: number;
 }

@@ -18,6 +18,9 @@ export class QuestionDto extends BaseDto {
   correctAnswers: string[];
 
   @Expose()
+  maxPoint: number;
+
+  @Expose()
   @Type(() => ExerciseDto)
   exercise: ExerciseDto;
 }

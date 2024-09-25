@@ -49,7 +49,7 @@ export class LessonController {
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
-      LessonDto.plainToInstance(lesson),
+      LessonDto.plainToInstance(lesson, ['detail']),
     );
   }
 

@@ -6,13 +6,17 @@ export class LessonDto extends BaseDto {
   @Expose()
   lessonName: string;
 
-  @Expose()
+  @Expose({
+    groups: ['detail'],
+  })
   description: string;
 
   @Expose()
   duration: number;
 
-  @Expose()
+  @Expose({
+    groups: ['detail'],
+  })
   content: string;
 
   @Exclude()

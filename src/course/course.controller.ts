@@ -17,7 +17,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { Public, Roles } from 'src/decorators';
+import { Public, Roles, User } from 'src/decorators';
 import { CourseDto, UpdateCourseDto } from 'src/dtos';
 import { CreateCourseDto } from 'src/dtos/course/createCourse.dto';
 import { RoleEnum } from 'src/enums';
@@ -88,6 +88,17 @@ export class CourseController {
       'Success',
       CourseDto.plainToInstance(course),
     );
+  }
+
+  @Get('/:id/students')
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async getStudentsByCourseId(
+    @User('userId') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const students = await this.courseService.getStudentsByCourseId(id, userId);
+
+    return new CustomResponse(HttpStatus.OK, 'Success', students);
   }
 
   @Post('/')

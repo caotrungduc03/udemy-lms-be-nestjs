@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryService } from 'src/category/category.service';
 import { BaseService } from 'src/common/base.service';
-import { CreateCourseDto, UpdateCourseDto } from 'src/dtos';
+import { CreateCourseDto, UpdateCourseDto, UserDto } from 'src/dtos';
 import { CourseEntity } from 'src/entities';
 import { UserService } from 'src/user/user.service';
 import { FindOptions } from 'src/utils/options';
@@ -71,6 +71,21 @@ export class CourseService extends BaseService<CourseEntity> {
     });
 
     return course.map((course) => course.id);
+  }
+
+  async getStudentsByCourseId(
+    courseId: number,
+    userId: number,
+  ): Promise<UserDto[]> {
+    const course = await this.findByIdAndVerifyAuthor(courseId, userId, {
+      relations: ['progress', 'progress.user'],
+    });
+
+    const students = course.progress.map((progress) => {
+      return UserDto.plainToInstance(progress.user);
+    });
+
+    return students;
   }
 
   async create(createCourseDto: CreateCourseDto): Promise<CourseEntity> {

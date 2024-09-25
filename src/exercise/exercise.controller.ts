@@ -53,7 +53,7 @@ export class ExerciseController {
     return new CustomResponse(
       HttpStatus.OK,
       'Success',
-      ExerciseDto.plainToInstance(exercise),
+      ExerciseDto.plainToInstance(exercise, ['detail']),
     );
   }
 

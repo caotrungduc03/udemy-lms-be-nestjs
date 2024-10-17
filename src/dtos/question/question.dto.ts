@@ -12,9 +12,7 @@ export class QuestionDto extends BaseDto {
   @Expose()
   answers: string[];
 
-  @Expose({
-    groups: ['admin'],
-  })
+  @Expose()
   correctAnswers: string[];
 
   @Expose()

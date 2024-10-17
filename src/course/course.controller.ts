@@ -80,7 +80,13 @@ export class CourseController {
   @Public()
   async findById(@Param('id', ParseIntPipe) id: number) {
     const course = await this.courseService.findById(id, {
-      relations: ['author', 'category', 'lessons', 'exercises'],
+      relations: [
+        'author',
+        'category',
+        'lessons',
+        'exercises',
+        'exercises.questions',
+      ],
     });
 
     return new CustomResponse(

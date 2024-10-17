@@ -69,7 +69,7 @@ export class QuestionController {
     return new CustomResponse(
       HttpStatus.CREATED,
       'Success',
-      QuestionDto.plainToInstance(question, ['admin']),
+      QuestionDto.plainToInstance(question),
     );
   }
 

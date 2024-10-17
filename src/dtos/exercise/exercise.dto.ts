@@ -6,7 +6,9 @@ export class ExerciseDto extends BaseDto {
   @Expose()
   exerciseName: string;
 
-  @Expose()
+  @Expose({
+    groups: ['detail'],
+  })
   description: string;
 
   @Expose()

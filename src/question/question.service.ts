@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/common/base.service';
-import { CreateQuestionDto, UpdateQuestionDto } from 'src/dtos';
+import {
+  CreateQuestionDto,
+  UpdateQuestionDto,
+  UpdateQuestionsDto,
+} from 'src/dtos';
 import { QuestionEntity } from 'src/entities';
 import { ExerciseService } from 'src/exercise/exercise.service';
 import { UserService } from 'src/user/user.service';
@@ -77,6 +81,34 @@ export class QuestionService extends BaseService<QuestionEntity> {
       ...question,
       ...updateQuestionDto,
     });
+  }
+
+  async updateByExerciseId(
+    exerciseId: number,
+    updateQuestionsDto: UpdateQuestionsDto,
+    userId: number,
+  ) {
+    const exercise = await this.exerciseService.findByIdAndVerifyAuthor(
+      exerciseId,
+      userId,
+      {
+        relations: ['questions'],
+      },
+    );
+
+    const questions = await Promise.all(
+      exercise.questions.map((question) => {
+        const updateQuestion = updateQuestionsDto.questions.find(
+          (updateQuestion) => updateQuestion.id === question.id,
+        );
+        return this.store({
+          ...question,
+          ...updateQuestion,
+        });
+      }),
+    );
+
+    return questions;
   }
 
   async deleteById(id: number, userId: number): Promise<QuestionEntity> {

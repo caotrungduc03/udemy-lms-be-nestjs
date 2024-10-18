@@ -7,8 +7,8 @@ import {
   UpdateQuestionsDto,
 } from 'src/dtos';
 import { QuestionEntity } from 'src/entities';
+import { QuestionTypeEnum } from 'src/enums';
 import { ExerciseService } from 'src/exercise/exercise.service';
-import { UserService } from 'src/user/user.service';
 import { FindOptions } from 'src/utils/options';
 import { Repository } from 'typeorm';
 
@@ -18,7 +18,6 @@ export class QuestionService extends BaseService<QuestionEntity> {
     @InjectRepository(QuestionEntity)
     private readonly questionRepository: Repository<QuestionEntity>,
     private readonly exerciseService: ExerciseService,
-    private readonly userService: UserService,
   ) {
     super(questionRepository);
   }
@@ -61,12 +60,20 @@ export class QuestionService extends BaseService<QuestionEntity> {
     );
 
     return Promise.all(
-      questions.map((question) =>
-        this.store({
+      questions.map((question) => {
+        if (question.questionType === QuestionTypeEnum.SHORT_ANSWER) {
+          question.answers = [];
+          question.correctAnswers = [];
+        }
+        if (question.answers.length === 0) {
+          question.correctAnswers = [];
+        }
+
+        return this.store({
           ...question,
           exerciseId: exercise.id,
-        }),
-      ),
+        });
+      }),
     );
   }
 
@@ -76,8 +83,16 @@ export class QuestionService extends BaseService<QuestionEntity> {
     updateQuestionDto: UpdateQuestionDto,
   ): Promise<QuestionEntity> {
     const question = await this.findByIdAndVerifyAuthor(id, userId);
-    const { questionTitle, questionType, answers, correctAnswers, maxPoint } =
+    let { questionTitle, questionType, answers, correctAnswers, maxPoint } =
       updateQuestionDto;
+
+    if (questionType === QuestionTypeEnum.SHORT_ANSWER) {
+      answers = [];
+      correctAnswers = [];
+    }
+    if (answers.length === 0) {
+      correctAnswers = [];
+    }
 
     return this.store({
       ...question,
@@ -102,33 +117,61 @@ export class QuestionService extends BaseService<QuestionEntity> {
       },
     );
 
-    const questions = await Promise.all(
-      exercise.questions.map((question) => {
-        const updateQuestion = updateQuestionsDto.questions.find(
-          (updateQuestion) => updateQuestion.id === question.id,
-        );
-        const {
+    const updatedQuestions = await Promise.all(
+      updateQuestionsDto.questions.map((updateQuestion) => {
+        let {
+          id,
           questionTitle,
           questionType,
           answers,
           correctAnswers,
           maxPoint,
         } = updateQuestion;
+        if (questionType === QuestionTypeEnum.SHORT_ANSWER) {
+          answers = [];
+          correctAnswers = [];
+        }
+        if (answers.length === 0) {
+          correctAnswers = [];
+        }
+
+        const existingQuestion = exercise.questions.find(
+          (question) => question.id === id,
+        );
+
+        if (existingQuestion) {
+          return this.store({
+            ...existingQuestion,
+            questionTitle,
+            questionType,
+            answers,
+            correctAnswers,
+            maxPoint,
+          });
+        }
 
         return this.store({
-          ...question,
           questionTitle,
           questionType,
           answers,
           correctAnswers,
           maxPoint,
+          exerciseId: exercise.id,
         });
       }),
     );
 
-    questions.sort((a, b) => a.id - b.id);
+    const questionsToDelete = exercise.questions.filter(
+      (question) =>
+        !updateQuestionsDto.questions.some(
+          (updateQuestion) => updateQuestion.id === question.id,
+        ),
+    );
+    await this.questionRepository.remove(questionsToDelete);
 
-    return questions;
+    updatedQuestions.sort((a, b) => a.id - b.id);
+
+    return updatedQuestions;
   }
 
   async deleteById(id: number, userId: number): Promise<QuestionEntity> {

@@ -9,7 +9,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
 } from '@nestjs/common';
 import { Roles, User } from 'src/decorators';
 import {
@@ -77,14 +76,13 @@ export class QuestionController {
   @Put('/:id')
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async updateById(
-    @Req() request: Request,
+    @User('userId') userId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
-    const userReq = request['user'];
     const question = await this.questionService.updateById(
       id,
-      userReq.userId,
+      userId,
       updateQuestionDto,
     );
 
@@ -118,11 +116,10 @@ export class QuestionController {
   @Delete('/:id')
   @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
   async deleteById(
-    @Req() request: Request,
+    @User('userId') userId: number,
     @Param('id', ParseIntPipe) id: number,
   ) {
-    const userReq = request['user'];
-    await this.questionService.deleteById(id, userReq.userId);
+    await this.questionService.deleteById(id, userId);
 
     return new CustomResponse(HttpStatus.OK, 'Deleted a question');
   }

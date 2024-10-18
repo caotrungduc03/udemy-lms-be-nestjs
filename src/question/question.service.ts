@@ -76,10 +76,16 @@ export class QuestionService extends BaseService<QuestionEntity> {
     updateQuestionDto: UpdateQuestionDto,
   ): Promise<QuestionEntity> {
     const question = await this.findByIdAndVerifyAuthor(id, userId);
+    const { questionTitle, questionType, answers, correctAnswers, maxPoint } =
+      updateQuestionDto;
 
     return this.store({
       ...question,
-      ...updateQuestionDto,
+      questionTitle,
+      questionType,
+      answers,
+      correctAnswers,
+      maxPoint,
     });
   }
 
@@ -101,12 +107,26 @@ export class QuestionService extends BaseService<QuestionEntity> {
         const updateQuestion = updateQuestionsDto.questions.find(
           (updateQuestion) => updateQuestion.id === question.id,
         );
+        const {
+          questionTitle,
+          questionType,
+          answers,
+          correctAnswers,
+          maxPoint,
+        } = updateQuestion;
+
         return this.store({
           ...question,
-          ...updateQuestion,
+          questionTitle,
+          questionType,
+          answers,
+          correctAnswers,
+          maxPoint,
         });
       }),
     );
+
+    questions.sort((a, b) => a.id - b.id);
 
     return questions;
   }

@@ -15,10 +15,10 @@ export class QuestionRequestDto {
   @IsEnum(QuestionTypeEnum)
   questionType: string;
 
-  @IsNotEmpty()
+  @IsArray()
   answers: string[];
 
-  @IsNotEmpty()
+  @IsArray()
   correctAnswers: string[];
 
   @IsNumber()

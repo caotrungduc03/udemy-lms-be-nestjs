@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty } from 'class-validator';
 import { QuestionTypeEnum } from 'src/enums';
 
 export class UpdateQuestionDto {
@@ -8,10 +8,10 @@ export class UpdateQuestionDto {
   @IsEnum(QuestionTypeEnum)
   questionType: string;
 
-  @IsNotEmpty()
+  @IsArray()
   answers: string[];
 
-  @IsNotEmpty()
+  @IsArray()
   correctAnswers: string[];
 
   @IsNotEmpty()

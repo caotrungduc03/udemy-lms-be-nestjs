@@ -27,6 +27,7 @@ export * from './question/createQuestion.dto';
 export * from './question/findQuestionsRequest.dto';
 export * from './question/question.dto';
 export * from './question/updateQuestion.dto';
+export * from './question/updateQuestions.dto';
 export * from './role/createRole.dto';
 export * from './role/role.dto';
 export * from './role/updateRole.dto';

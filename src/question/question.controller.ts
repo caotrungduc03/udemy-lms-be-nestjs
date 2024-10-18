@@ -17,6 +17,7 @@ import {
   FindQuestionsRequestDto,
   QuestionDto,
   UpdateQuestionDto,
+  UpdateQuestionsDto,
 } from 'src/dtos';
 import { RoleEnum } from 'src/enums';
 import { CustomResponse } from 'src/utils/customResponse';
@@ -85,6 +86,26 @@ export class QuestionController {
       id,
       userReq.userId,
       updateQuestionDto,
+    );
+
+    return new CustomResponse(
+      HttpStatus.OK,
+      'Success',
+      QuestionDto.plainToInstance(question),
+    );
+  }
+
+  @Put('/exercises/:exerciseId')
+  @Roles(RoleEnum.PROFESSOR, RoleEnum.ADMIN)
+  async updateByExerciseId(
+    @User('userId') userId: number,
+    @Param('exerciseId', ParseIntPipe) exerciseId: number,
+    @Body() updateQuestionsDto: UpdateQuestionsDto,
+  ) {
+    const question = await this.questionService.updateByExerciseId(
+      exerciseId,
+      updateQuestionsDto,
+      userId,
     );
 
     return new CustomResponse(

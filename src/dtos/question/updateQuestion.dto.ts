@@ -13,4 +13,7 @@ export class UpdateQuestionDto {
 
   @IsNotEmpty()
   correctAnswers: string[];
+
+  @IsNotEmpty()
+  maxPoint: number;
 }
